@@ -9,7 +9,7 @@ import {
 
 export const tap_menu = pgSchema("tap_menu");
 
-export const tables = tap_menu.table("tables", {
+export const tablesInTapMenu = tap_menu.table("tables", {
 	id: serial().primaryKey(),
 	number: text().notNull().unique(),
 	qr_code: text().notNull().unique(),
@@ -18,7 +18,7 @@ export const tables = tap_menu.table("tables", {
 		.notNull(),
 });
 
-export const order_status = tap_menu.enum("order_status", [
+export const orderStatusInTapMenu = tap_menu.enum("order_status", [
 	"open",
 	"preparing",
 	"ready",
@@ -26,13 +26,13 @@ export const order_status = tap_menu.enum("order_status", [
 	"cancelled",
 ]);
 
-export const orders = tap_menu.table("orders", {
+export const ordersInTapMenu = tap_menu.table("orders", {
 	id: serial().primaryKey(),
 	table_id: integer()
-		.references(() => tables.id)
+		.references(() => tablesInTapMenu.id)
 		.notNull(),
 	qr_code: text().notNull().unique(),
-	status: order_status("status").notNull().default("open"),
+	status: orderStatusInTapMenu("status").notNull().default("open"),
 	created_at: timestamp({ mode: "string", withTimezone: true })
 		.defaultNow()
 		.notNull(),
@@ -42,7 +42,7 @@ export const orders = tap_menu.table("orders", {
 	total: integer().notNull().default(0),
 });
 
-export const menu_categories = tap_menu.table("menu_categories", {
+export const menuCategoriesInTapMenu = tap_menu.table("menu_categories", {
 	id: serial().primaryKey(),
 	name: text().notNull().unique(),
 	description: text(),
@@ -51,9 +51,9 @@ export const menu_categories = tap_menu.table("menu_categories", {
 		.notNull(),
 });
 
-export const menu_items = tap_menu.table("menu_items", {
+export const menuItemsInTapMenu = tap_menu.table("menu_items", {
 	id: serial().primaryKey(),
-	category_id: integer().references(() => menu_categories.id),
+	category_id: integer().references(() => menuCategoriesInTapMenu.id),
 	name: text().notNull(),
 	description: text(),
 	price: integer().notNull(),
@@ -64,13 +64,13 @@ export const menu_items = tap_menu.table("menu_items", {
 		.notNull(),
 });
 
-export const order_items = tap_menu.table("order_items", {
+export const orderItemsInTapMenu = tap_menu.table("order_items", {
 	id: serial().primaryKey(),
 	order_id: integer()
-		.references(() => orders.id)
+		.references(() => ordersInTapMenu.id)
 		.notNull(),
 	menu_item_id: integer()
-		.references(() => menu_items.id)
+		.references(() => menuItemsInTapMenu.id)
 		.notNull(),
 	quantity: integer().notNull().default(1),
 	notes: text(),
