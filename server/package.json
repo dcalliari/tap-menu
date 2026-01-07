@@ -8,6 +8,7 @@
 		"dev": "bun --watch run src/index.ts & tsc --watch"
 	},
 	"dependencies": {
+		"@hono/zod-validator": "^0.7.6",
 		"drizzle-orm": "^0.45.1",
 		"hono": "^4.10.8",
 		"ioredis": "^5.8.2",

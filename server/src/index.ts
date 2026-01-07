@@ -2,6 +2,7 @@ import { checkDatabase } from "@server/db";
 import { env } from "@server/env";
 import { rateLimit } from "@server/lib/rate-limit";
 import { checkRedis } from "@server/lib/redis";
+import { tablesRoutes } from "@server/routes/tables";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -9,6 +10,8 @@ import { logger } from "hono/logger";
 export const app = new Hono()
 
 	.use(cors(), logger(), rateLimit({ limit: 100 }))
+
+	.route("/tables", tablesRoutes)
 
 	.get("/", (c) => {
 		return c.json({
