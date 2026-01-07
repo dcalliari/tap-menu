@@ -14,12 +14,12 @@ type Env = {
 };
 
 export const generateToken = async (
-	userId: string,
+	name: string,
 	email: string,
 	secret: string,
 ): Promise<string> => {
 	const payload = {
-		userId,
+		name,
 		email,
 		exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
 	};
