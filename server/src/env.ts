@@ -21,6 +21,9 @@ const envSchema = z.object({
 		),
 	FRONTEND_URL: z.url("Invalid frontend URL").default("http://localhost:5173"),
 	REDIS_URL: z.string().default("redis://localhost:6379"),
+	JWT_SECRET: z
+		.string()
+		.min(32, "JWT secret must be at least 32 characters long"),
 });
 
 export type Env = z.infer<typeof envSchema>;

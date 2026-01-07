@@ -7,9 +7,9 @@ import {
 	timestamp,
 } from "drizzle-orm/pg-core";
 
-export const tap_menu = pgSchema("tap_menu");
+export const tapMenu = pgSchema("tap_menu");
 
-export const tablesInTapMenu = tap_menu.table("tables", {
+export const tablesInTapMenu = tapMenu.table("tables", {
 	id: serial().primaryKey(),
 	number: text().notNull().unique(),
 	qr_code: text().notNull().unique(),
@@ -18,7 +18,7 @@ export const tablesInTapMenu = tap_menu.table("tables", {
 		.notNull(),
 });
 
-export const orderStatusInTapMenu = tap_menu.enum("order_status", [
+export const orderStatusInTapMenu = tapMenu.enum("order_status", [
 	"open",
 	"preparing",
 	"ready",
@@ -26,7 +26,7 @@ export const orderStatusInTapMenu = tap_menu.enum("order_status", [
 	"cancelled",
 ]);
 
-export const ordersInTapMenu = tap_menu.table("orders", {
+export const ordersInTapMenu = tapMenu.table("orders", {
 	id: serial().primaryKey(),
 	table_id: integer()
 		.references(() => tablesInTapMenu.id)
@@ -42,7 +42,7 @@ export const ordersInTapMenu = tap_menu.table("orders", {
 	total: integer().notNull().default(0),
 });
 
-export const menuCategoriesInTapMenu = tap_menu.table("menu_categories", {
+export const menuCategoriesInTapMenu = tapMenu.table("menu_categories", {
 	id: serial().primaryKey(),
 	name: text().notNull().unique(),
 	description: text(),
@@ -51,7 +51,7 @@ export const menuCategoriesInTapMenu = tap_menu.table("menu_categories", {
 		.notNull(),
 });
 
-export const menuItemsInTapMenu = tap_menu.table("menu_items", {
+export const menuItemsInTapMenu = tapMenu.table("menu_items", {
 	id: serial().primaryKey(),
 	category_id: integer().references(() => menuCategoriesInTapMenu.id),
 	name: text().notNull(),
@@ -64,7 +64,7 @@ export const menuItemsInTapMenu = tap_menu.table("menu_items", {
 		.notNull(),
 });
 
-export const orderItemsInTapMenu = tap_menu.table("order_items", {
+export const orderItemsInTapMenu = tapMenu.table("order_items", {
 	id: serial().primaryKey(),
 	order_id: integer()
 		.references(() => ordersInTapMenu.id)
@@ -75,6 +75,16 @@ export const orderItemsInTapMenu = tap_menu.table("order_items", {
 	quantity: integer().notNull().default(1),
 	notes: text(),
 	price_at_time: integer().notNull(),
+	created_at: timestamp({ mode: "string", withTimezone: true })
+		.defaultNow()
+		.notNull(),
+});
+
+export const usersInTapMenu = tapMenu.table("users", {
+	id: serial().primaryKey(),
+	name: text().notNull(),
+	email: text().notNull().unique(),
+	password_hash: text().notNull(),
 	created_at: timestamp({ mode: "string", withTimezone: true })
 		.defaultNow()
 		.notNull(),

@@ -9,6 +9,7 @@
 	},
 	"dependencies": {
 		"@hono/zod-validator": "^0.7.6",
+		"bcryptjs": "^3.0.3",
 		"drizzle-orm": "^0.45.1",
 		"hono": "^4.10.8",
 		"ioredis": "^5.8.2",
