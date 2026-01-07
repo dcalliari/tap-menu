@@ -1,18 +1,19 @@
 import { zValidator } from "@hono/zod-validator";
-import { db } from "@server/db";
-import { tablesInTapMenu } from "@server/db/schema";
 import { authenticateToken } from "@server/lib/auth";
 import { createTableSchema, updateTableSchema } from "@server/schemas/tables";
-import { eq } from "drizzle-orm";
+import {
+	createTable,
+	deleteTable,
+	getTableById,
+	listTables,
+	updateTable,
+} from "@server/services/tables";
 import { Hono } from "hono";
 
 export const tablesRoutes = new Hono()
 	.get("/", async (c) => {
 		try {
-			const tables = await db
-				.select()
-				.from(tablesInTapMenu)
-				.orderBy(tablesInTapMenu.number);
+			const tables = await listTables();
 
 			return c.json({ success: true, data: tables });
 		} catch (error) {
@@ -24,12 +25,7 @@ export const tablesRoutes = new Hono()
 	.get("/:id", async (c) => {
 		try {
 			const { id } = c.req.param();
-
-			const [table] = await db
-				.select()
-				.from(tablesInTapMenu)
-				.where(eq(tablesInTapMenu.id, Number(id)))
-				.limit(1);
+			const table = await getTableById(Number(id));
 
 			if (!table) {
 				return c.json({ success: false, error: "Table Not Found" }, 404);
@@ -49,14 +45,7 @@ export const tablesRoutes = new Hono()
 		async (c) => {
 			try {
 				const validatedData = c.req.valid("json");
-
-				const [newTable] = await db
-					.insert(tablesInTapMenu)
-					.values({
-						number: validatedData.number,
-						qr_code: validatedData.qr_code ? validatedData.qr_code : "",
-					})
-					.returning();
+				const newTable = await createTable(validatedData);
 
 				return c.json(
 					{
@@ -81,15 +70,7 @@ export const tablesRoutes = new Hono()
 			try {
 				const { id } = c.req.param();
 				const validatedData = c.req.valid("json");
-
-				const [updatedTable] = await db
-					.update(tablesInTapMenu)
-					.set({
-						number: validatedData.number,
-						qr_code: validatedData.qr_code,
-					})
-					.where(eq(tablesInTapMenu.id, Number(id)))
-					.returning();
+				const updatedTable = await updateTable(Number(id), validatedData);
 
 				if (!updatedTable) {
 					return c.json(
@@ -116,11 +97,7 @@ export const tablesRoutes = new Hono()
 	.delete("/:id", authenticateToken, async (c) => {
 		try {
 			const { id } = c.req.param();
-
-			const [deleted] = await db
-				.delete(tablesInTapMenu)
-				.where(eq(tablesInTapMenu.id, Number(id)))
-				.returning();
+			const deleted = await deleteTable(Number(id));
 
 			if (!deleted) {
 				return c.json(
