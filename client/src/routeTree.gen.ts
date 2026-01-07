@@ -15,7 +15,7 @@ const IndexRoute = IndexRouteImport.update({
 	id: "/",
 	path: "/",
 	getParentRoute: () => rootRouteImport,
-} as any);
+} as const);
 
 export interface FileRoutesByFullPath {
 	"/": typeof IndexRoute;
