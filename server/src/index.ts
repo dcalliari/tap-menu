@@ -4,6 +4,7 @@ import { rateLimit } from "@server/lib/rate-limit";
 import { checkRedis } from "@server/lib/redis";
 import { authRoutes } from "@server/routes/auth";
 import { menuRoutes } from "@server/routes/menu";
+import { ordersRoutes } from "@server/routes/orders";
 import { tablesRoutes } from "@server/routes/tables";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -16,6 +17,7 @@ export const app = new Hono()
 	.route("/auth", authRoutes)
 	.route("/tables", tablesRoutes)
 	.route("/menu", menuRoutes)
+	.route("/orders", ordersRoutes)
 
 	.get("/", (c) => {
 		return c.json({
