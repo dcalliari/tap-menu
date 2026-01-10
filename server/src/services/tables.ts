@@ -19,6 +19,15 @@ export async function getTableById(id: number) {
 	return table;
 }
 
+export async function getTableByQrCode(qrCode: string) {
+	const [table] = await db
+		.select()
+		.from(tablesInTapMenu)
+		.where(eq(tablesInTapMenu.qr_code, qrCode))
+		.limit(1);
+	return table;
+}
+
 export async function createTable(input: { number: string; qr_code?: string }) {
 	const qrCode = input.qr_code?.trim()
 		? input.qr_code.trim()

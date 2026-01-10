@@ -6,12 +6,36 @@ import {
 	createTable,
 	deleteTable,
 	getTableById,
+	getTableByQrCode,
 	listTables,
 	updateTable,
 } from "@server/services/tables";
 import { Hono } from "hono";
 
 export const tablesRoutes = new Hono()
+
+	.get("/qr/:qr_code", async (c) => {
+		try {
+			const qrCode = c.req.param("qr_code");
+			if (!qrCode || qrCode.length > 200) {
+				return c.json({ success: false, error: "Invalid QR code" }, 400);
+			}
+
+			const table = await getTableByQrCode(qrCode);
+			if (!table) {
+				return c.json({ success: false, error: "Table Not Found" }, 404);
+			}
+
+			return c.json({
+				success: true,
+				data: { id: table.id, number: table.number },
+			});
+		} catch (error) {
+			console.error("Error fetching table by qr:", error);
+			return c.json({ error: "Internal Server Error" }, 500);
+		}
+	})
+
 	.get("/", authenticateToken, async (c) => {
 		try {
 			const tables = await listTables();
