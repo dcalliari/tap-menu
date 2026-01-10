@@ -12,7 +12,7 @@ import {
 import { Hono } from "hono";
 
 export const tablesRoutes = new Hono()
-	.get("/", async (c) => {
+	.get("/", authenticateToken, async (c) => {
 		try {
 			const tables = await listTables();
 
@@ -42,7 +42,7 @@ export const tablesRoutes = new Hono()
 		}
 	})
 
-	.get("/:id", async (c) => {
+	.get("/:id", authenticateToken, async (c) => {
 		try {
 			const { id } = c.req.param();
 			const table = await getTableById(Number(id));
