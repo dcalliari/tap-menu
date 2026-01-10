@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { authenticateToken } from "@server/lib/auth";
 import {
 	createOrderSchema,
+	listOrdersQuerySchema,
 	updateOrderStatusSchema,
 } from "@server/schemas/orders";
 import {
@@ -50,11 +51,9 @@ export const ordersRoutes = new Hono()
 		}
 	})
 	// Admin: list orders
-	.get("/", authenticateToken, async (c) => {
+	.get("/", authenticateToken, zValidator("query", listOrdersQuerySchema), async (c) => {
 		try {
-			const tableIdRaw = c.req.query("tableId");
-			const tableId = tableIdRaw ? Number(tableIdRaw) : undefined;
-			const status = c.req.query("status");
+			const { tableId, status } = c.req.valid("query");
 			const orders = await listOrders({ tableId, status });
 			return c.json({ success: true, data: orders });
 		} catch (error) {
