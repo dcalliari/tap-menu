@@ -51,16 +51,21 @@ export const ordersRoutes = new Hono()
 		}
 	})
 	// Admin: list orders
-	.get("/", authenticateToken, zValidator("query", listOrdersQuerySchema), async (c) => {
-		try {
-			const { tableId, status } = c.req.valid("query");
-			const orders = await listOrders({ tableId, status });
-			return c.json({ success: true, data: orders });
-		} catch (error) {
-			console.error("Error fetching orders:", error);
-			return c.json({ error: "Internal Server Error" }, 500);
-		}
-	})
+	.get(
+		"/",
+		authenticateToken,
+		zValidator("query", listOrdersQuerySchema),
+		async (c) => {
+			try {
+				const { tableId, status } = c.req.valid("query");
+				const orders = await listOrders({ tableId, status });
+				return c.json({ success: true, data: orders });
+			} catch (error) {
+				console.error("Error fetching orders:", error);
+				return c.json({ error: "Internal Server Error" }, 500);
+			}
+		},
+	)
 	// Admin: get order
 	.get("/:id", authenticateToken, async (c) => {
 		try {

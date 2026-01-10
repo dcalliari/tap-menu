@@ -18,14 +18,11 @@ export const updateOrderStatusSchema = z.object({
 });
 
 export const listOrdersQuerySchema = z.object({
-	tableId: z.preprocess(
-		(value) => {
-			if (value === undefined || value === null || value === "") return undefined;
-			if (Array.isArray(value)) return value[0];
-			return Number(value);
-		},
-		z.number().int().positive().optional(),
-	),
+	tableId: z.preprocess((value) => {
+		if (value === undefined || value === null || value === "") return undefined;
+		if (Array.isArray(value)) return value[0];
+		return Number(value);
+	}, z.number().int().positive().optional()),
 	status: z
 		.enum(["open", "preparing", "ready", "closed", "cancelled"])
 		.optional(),
