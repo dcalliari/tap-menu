@@ -45,3 +45,14 @@ export const updateMenuItemSchema = z
 			value.is_available !== undefined,
 		{ message: "At least one field must be provided" },
 	);
+
+export const listMenuItemsQuerySchema = z.object({
+	categoryId: z.preprocess(
+		(value) => {
+			if (value === undefined || value === null || value === "") return undefined;
+			if (Array.isArray(value)) return value[0];
+			return Number(value);
+		},
+		z.number().int().positive().optional(),
+	),
+});

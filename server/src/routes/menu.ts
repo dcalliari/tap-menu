@@ -3,6 +3,7 @@ import { authenticateToken } from "@server/lib/auth";
 import {
 	createMenuCategorySchema,
 	createMenuItemSchema,
+	listMenuItemsQuerySchema,
 	updateMenuCategorySchema,
 	updateMenuItemSchema,
 } from "@server/schemas/menu";
@@ -101,10 +102,9 @@ const categoriesRoutes = new Hono()
 	});
 
 const itemsRoutes = new Hono()
-	.get("/", async (c) => {
+	.get("/", zValidator("query", listMenuItemsQuerySchema), async (c) => {
 		try {
-			const categoryIdRaw = c.req.query("categoryId");
-			const categoryId = categoryIdRaw ? Number(categoryIdRaw) : undefined;
+			const { categoryId } = c.req.valid("query");
 			const items = await listMenuItems({ categoryId });
 			return c.json({ success: true, data: items });
 		} catch (error) {
