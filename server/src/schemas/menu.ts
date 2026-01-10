@@ -47,12 +47,9 @@ export const updateMenuItemSchema = z
 	);
 
 export const listMenuItemsQuerySchema = z.object({
-	categoryId: z.preprocess(
-		(value) => {
-			if (value === undefined || value === null || value === "") return undefined;
-			if (Array.isArray(value)) return value[0];
-			return Number(value);
-		},
-		z.number().int().positive().optional(),
-	),
+	categoryId: z.preprocess((value) => {
+		if (value === undefined || value === null || value === "") return undefined;
+		if (Array.isArray(value)) return value[0];
+		return Number(value);
+	}, z.number().int().positive().optional()),
 });
