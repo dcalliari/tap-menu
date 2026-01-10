@@ -13,7 +13,13 @@ import { logger } from "hono/logger";
 
 export const app = new Hono()
 
-	.use(cors(), logger(), rateLimit({ limit: 100 }))
+	.use(
+		cors({
+			origin: env.NODE_ENV === "development" ? "*" : env.FRONTEND_URL,
+		}),
+		logger(),
+		rateLimit({ limit: 100 }),
+	)
 
 	.route("/auth", authRoutes)
 	.route("/qr", qrRoutes)
