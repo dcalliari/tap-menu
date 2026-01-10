@@ -1,5 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { authenticateToken } from "@server/lib/auth";
+import { buildTableQrUrl, toQrSvg } from "@server/lib/qr";
 import { createTableSchema, updateTableSchema } from "@server/schemas/tables";
 import {
 	createTable,
@@ -18,6 +19,25 @@ export const tablesRoutes = new Hono()
 			return c.json({ success: true, data: tables });
 		} catch (error) {
 			console.error("Error fetching tables:", error);
+			return c.json({ error: "Internal Server Error" }, 500);
+		}
+	})
+
+	.get("/:id/qr.svg", authenticateToken, async (c) => {
+		try {
+			const { id } = c.req.param();
+			const table = await getTableById(Number(id));
+
+			if (!table) {
+				return c.json({ success: false, error: "Table Not Found" }, 404);
+			}
+
+			const svg = await toQrSvg(buildTableQrUrl(table.qr_code));
+			c.header("Content-Type", "image/svg+xml; charset=utf-8");
+			c.header("Cache-Control", "no-store");
+			return c.body(svg);
+		} catch (error) {
+			console.error("Error generating table qr:", error);
 			return c.json({ error: "Internal Server Error" }, 500);
 		}
 	})

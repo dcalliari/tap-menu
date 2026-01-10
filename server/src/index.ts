@@ -5,6 +5,7 @@ import { checkRedis } from "@server/lib/redis";
 import { authRoutes } from "@server/routes/auth";
 import { menuRoutes } from "@server/routes/menu";
 import { ordersRoutes } from "@server/routes/orders";
+import { qrRoutes } from "@server/routes/qr";
 import { tablesRoutes } from "@server/routes/tables";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -15,6 +16,7 @@ export const app = new Hono()
 	.use(cors(), logger(), rateLimit({ limit: 100 }))
 
 	.route("/auth", authRoutes)
+	.route("/qr", qrRoutes)
 	.route("/tables", tablesRoutes)
 	.route("/menu", menuRoutes)
 	.route("/orders", ordersRoutes)
