@@ -43,7 +43,7 @@ bun install
 
 ### Variáveis de ambiente
 
-- Backend: há um exemplo em [server/src/.env.example](server/src/.env.example)
+- Backend: há um exemplo em [server/.env.example](server/.env.example)
   - Recomenda-se criar `server/.env` com o mesmo conteúdo (ou exportar as variáveis no seu shell/CI).
 - Frontend:
   - opcionalmente defina `VITE_SERVER_URL` (padrão: `http://localhost:3000`)
