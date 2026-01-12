@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,15 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
+import { getAuthToken } from "@/lib/auth-token";
 
 export const Route = createFileRoute("/admin/")({
+	beforeLoad: () => {
+		const token = getAuthToken();
+		if (!token) {
+			throw redirect({ to: "/login" });
+		}
+	},
 	component: AdminManagementPage,
 });
 
