@@ -16,12 +16,12 @@ const IndexRoute = IndexRouteImport.update({
 	id: "/",
 	path: "/",
 	getParentRoute: () => rootRouteImport,
-} as const);
+} as any);
 const AdminIndexRoute = AdminIndexRouteImport.update({
 	id: "/admin/",
 	path: "/admin/",
 	getParentRoute: () => rootRouteImport,
-} as const);
+} as any);
 
 export interface FileRoutesByFullPath {
 	"/": typeof IndexRoute;

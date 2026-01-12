@@ -1,0 +1,51 @@
+import { apiClient, parseJsonOrThrow } from "@/lib/api-client";
+
+export type OrderStatus =
+	| "open"
+	| "preparing"
+	| "ready"
+	| "closed"
+	| "cancelled";
+
+export async function createOrder(input: {
+	table_qr_code: string;
+	items: { menu_item_id: number; quantity: number; notes?: string }[];
+}) {
+	const res = await apiClient.orders.$post({ json: input });
+	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+}
+
+export async function getOrderByQr(qrCode: string) {
+	const res = await apiClient.orders.qr[":qr_code"].$get({
+		param: { qr_code: qrCode },
+	});
+	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+}
+
+export async function listOrders(query: {
+	tableId?: string | string[];
+	status?: OrderStatus;
+}) {
+	const res = await apiClient.orders.$get({
+		query: {
+			tableId: query.tableId ?? "",
+			status: query.status,
+		},
+	});
+	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+}
+
+export async function getOrder(id: number) {
+	const res = await apiClient.orders[":id"].$get({
+		param: { id: String(id) },
+	});
+	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+}
+
+export async function updateOrderStatus(id: number, status: OrderStatus) {
+	const res = await apiClient.orders[":id"].status.$patch({
+		param: { id: String(id) },
+		json: { status },
+	});
+	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+}
