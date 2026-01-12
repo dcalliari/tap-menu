@@ -1,8 +1,23 @@
 import { apiClient, parseJsonOrThrow } from "@/lib/api-client";
 
+type ListMenuCategoriesRes = Awaited<
+	ReturnType<typeof apiClient.menu.categories.$get>
+>;
+type ListMenuCategoriesJson = Awaited<
+	ReturnType<ListMenuCategoriesRes["json"]>
+>;
+type ListMenuCategoriesSuccess = Extract<
+	ListMenuCategoriesJson,
+	{ success: true }
+>;
+
+type ListMenuItemsRes = Awaited<ReturnType<typeof apiClient.menu.items.$get>>;
+type ListMenuItemsJson = Awaited<ReturnType<ListMenuItemsRes["json"]>>;
+type ListMenuItemsSuccess = Extract<ListMenuItemsJson, { success: true }>;
+
 export async function listMenuCategories() {
 	const res = await apiClient.menu.categories.$get();
-	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+	return parseJsonOrThrow<ListMenuCategoriesSuccess>(res);
 }
 
 export async function getMenuCategory(id: number) {
@@ -40,7 +55,7 @@ export async function deleteMenuCategory(id: number) {
 
 export async function listMenuItems(categoryId: string | string[]) {
 	const res = await apiClient.menu.items.$get({ query: { categoryId } });
-	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+	return parseJsonOrThrow<ListMenuItemsSuccess>(res);
 }
 
 export async function getMenuItem(id: number) {

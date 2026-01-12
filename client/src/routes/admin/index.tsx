@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,12 +10,20 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
 
 export const Route = createFileRoute("/admin/")({
 	component: AdminManagementPage,
 });
 
 function AdminManagementPage() {
+	const [selectedCategoryId, setSelectedCategoryId] = useState<
+		string | undefined
+	>(undefined);
+
+	const categoriesQuery = useMenuCategories();
+	const itemsQuery = useMenuItems(selectedCategoryId);
+
 	return (
 		<div className="min-h-screen">
 			<div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
@@ -41,12 +50,80 @@ function AdminManagementPage() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<p className="text-muted-foreground text-sm">
-								Coming next: menu CRUD and publishing.
-							</p>
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-2">
+									<p className="text-sm font-medium">Categories</p>
+									{categoriesQuery.isLoading && (
+										<p className="text-muted-foreground text-sm">Loading…</p>
+									)}
+									{categoriesQuery.isError && (
+										<p className="text-destructive text-sm">
+											Failed to load categories.
+										</p>
+									)}
+									{categoriesQuery.data && (
+										<div className="flex flex-wrap gap-2">
+											{categoriesQuery.data.data.map((category) => (
+												<Button
+													key={category.id}
+													variant={
+														selectedCategoryId === String(category.id)
+															? "default"
+															: "outline"
+													}
+													size="sm"
+													onClick={() =>
+														setSelectedCategoryId(String(category.id))
+													}
+												>
+													{category.name}
+												</Button>
+											))}
+										</div>
+									)}
+								</div>
+
+								<div className="flex flex-col gap-2">
+									<p className="text-sm font-medium">Items</p>
+									{!selectedCategoryId && (
+										<p className="text-muted-foreground text-sm">
+											Select a category to view items.
+										</p>
+									)}
+									{itemsQuery.isLoading && selectedCategoryId && (
+										<p className="text-muted-foreground text-sm">Loading…</p>
+									)}
+									{itemsQuery.isError && selectedCategoryId && (
+										<p className="text-destructive text-sm">
+											Failed to load items.
+										</p>
+									)}
+									{itemsQuery.data && (
+										<ul className="space-y-1">
+											{itemsQuery.data.data.map((item) => (
+												<li
+													key={item.id}
+													className="flex items-center justify-between gap-4"
+												>
+													<span className="text-sm">{item.name}</span>
+													<span className="text-muted-foreground text-sm">
+														{item.price}
+													</span>
+												</li>
+											))}
+										</ul>
+									)}
+								</div>
+							</div>
 						</CardContent>
 						<CardFooter>
-							<Button disabled>Open Menu Manager</Button>
+							<Button
+								variant="outline"
+								onClick={() => setSelectedCategoryId(undefined)}
+								disabled={!selectedCategoryId}
+							>
+								Clear selection
+							</Button>
 						</CardFooter>
 					</Card>
 
