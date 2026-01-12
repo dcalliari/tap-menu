@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { hcWithType } from "server/dist/client";
 import beaver from "@/assets/beaver.svg";
 import { Button } from "@/components/ui/button";
-import { hcWithType } from "server/dist/client";
-import { useMutation } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -13,7 +13,7 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
 const client = hcWithType(SERVER_URL);
 
-type ResponseType = Awaited<ReturnType<typeof client.hello.$get>>;
+type ResponseType = Awaited<ReturnType<typeof client.index.$get>>;
 
 function Index() {
 	const [data, setData] = useState<
@@ -23,7 +23,7 @@ function Index() {
 	const { mutate: sendRequest } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await client.hello.$get();
+				const res = await client.index.$get();
 				if (!res.ok) {
 					console.log("Error fetching data");
 					return;
@@ -59,12 +59,16 @@ function Index() {
 						Docs
 					</a>
 				</Button>
+				<Button variant="outline" asChild>
+					<Link to="/admin">Admin</Link>
+				</Button>
 			</div>
 			{data && (
 				<pre className="bg-gray-100 p-4 rounded-md">
 					<code>
 						Message: {data.message} <br />
-						Success: {data.success.toString()}
+						Version: {data.version} <br />
+						Environment: {data.environment}
 					</code>
 				</pre>
 			)}
