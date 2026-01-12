@@ -8,70 +8,106 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as AdminIndexRouteImport } from "./routes/admin/index";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as RegisterRouteImport } from "./routes/register";
 
+const RegisterRoute = RegisterRouteImport.update({
+	id: "/register",
+	path: "/register",
+	getParentRoute: () => rootRouteImport,
+} as const);
+const LoginRoute = LoginRouteImport.update({
+	id: "/login",
+	path: "/login",
+	getParentRoute: () => rootRouteImport,
+} as const);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => rootRouteImport,
+} as const);
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/admin/",
+	path: "/admin/",
+	getParentRoute: () => rootRouteImport,
+} as const);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminIndexRoute
+	"/": typeof IndexRoute;
+	"/login": typeof LoginRoute;
+	"/register": typeof RegisterRoute;
+	"/admin": typeof AdminIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminIndexRoute
+	"/": typeof IndexRoute;
+	"/login": typeof LoginRoute;
+	"/register": typeof RegisterRoute;
+	"/admin": typeof AdminIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/admin/': typeof AdminIndexRoute
+	__root__: typeof rootRouteImport;
+	"/": typeof IndexRoute;
+	"/login": typeof LoginRoute;
+	"/register": typeof RegisterRoute;
+	"/admin/": typeof AdminIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin'
-  id: '__root__' | '/' | '/admin/'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths: "/" | "/login" | "/register" | "/admin";
+	fileRoutesByTo: FileRoutesByTo;
+	to: "/" | "/login" | "/register" | "/admin";
+	id: "__root__" | "/" | "/login" | "/register" | "/admin/";
+	fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AdminIndexRoute: typeof AdminIndexRoute
+	IndexRoute: typeof IndexRoute;
+	LoginRoute: typeof LoginRoute;
+	RegisterRoute: typeof RegisterRoute;
+	AdminIndexRoute: typeof AdminIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/': {
-      id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/register": {
+			id: "/register";
+			path: "/register";
+			fullPath: "/register";
+			preLoaderRoute: typeof RegisterRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/login": {
+			id: "/login";
+			path: "/login";
+			fullPath: "/login";
+			preLoaderRoute: typeof LoginRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/": {
+			id: "/";
+			path: "/";
+			fullPath: "/";
+			preLoaderRoute: typeof IndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/admin/": {
+			id: "/admin/";
+			path: "/admin";
+			fullPath: "/admin";
+			preLoaderRoute: typeof AdminIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+	}
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AdminIndexRoute: AdminIndexRoute,
-}
+	IndexRoute: IndexRoute,
+	LoginRoute: LoginRoute,
+	RegisterRoute: RegisterRoute,
+	AdminIndexRoute: AdminIndexRoute,
+};
 export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
