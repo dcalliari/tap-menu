@@ -1,8 +1,12 @@
 import { apiClient, parseJsonOrThrow } from "@/lib/api-client";
 
+type ListTablesRes = Awaited<ReturnType<typeof apiClient.tables.$get>>;
+type ListTablesJson = Awaited<ReturnType<ListTablesRes["json"]>>;
+type ListTablesSuccess = Extract<ListTablesJson, { success: true }>;
+
 export async function listTables() {
 	const res = await apiClient.tables.$get();
-	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+	return parseJsonOrThrow<ListTablesSuccess>(res);
 }
 
 export async function getTable(id: number) {
