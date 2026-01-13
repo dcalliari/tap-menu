@@ -5,7 +5,9 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
-		"dev": "bun --watch run src/index.ts & tsc --watch"
+		"dev": "bun --watch run src/index.ts & tsc --watch",
+		"test": "NODE_ENV=test JWT_SECRET=__test_secret__please_change_me__32chars__ bun test",
+		"test:watch": "NODE_ENV=test JWT_SECRET=__test_secret__please_change_me__32chars__ bun test --watch"
 	},
 	"dependencies": {
 		"@hono/zod-validator": "^0.7.6",
