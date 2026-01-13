@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { setupTestHooks, getApp } from "../../setup/hooks";
 import { expectHeaderContains, expectJson } from "../../helpers/assertions";
-import { request, jsonHeaders } from "../../helpers/http";
 import { makeAuthHeaders } from "../../helpers/factories";
+import { jsonHeaders, request } from "../../helpers/http";
+import { getApp, setupTestHooks } from "../../setup/hooks";
 
 setupTestHooks();
 
@@ -51,7 +51,10 @@ describe("tables routes", () => {
 		const created = await expectJson<any>(createRes, 201);
 		const qrCode: string = created.data.qr_code;
 
-		const byQrRes = await request(app, `/tables/qr/${encodeURIComponent(qrCode)}`);
+		const byQrRes = await request(
+			app,
+			`/tables/qr/${encodeURIComponent(qrCode)}`,
+		);
 		const byQrJson = await expectJson<any>(byQrRes, 200);
 		expect(byQrJson.success).toBe(true);
 		expect(byQrJson.data.number).toBe("10");

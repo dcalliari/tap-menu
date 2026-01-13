@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { setupTestHooks, getApp } from "../../setup/hooks";
 import { expectJson } from "../../helpers/assertions";
-import { request, jsonHeaders } from "../../helpers/http";
 import { makeAuthHeaders } from "../../helpers/factories";
 import {
 	createMenuItemFixture,
 	createTableFixture,
 } from "../../helpers/fixtures";
+import { jsonHeaders, request } from "../../helpers/http";
+import { getApp, setupTestHooks } from "../../setup/hooks";
 
 setupTestHooks();
 
@@ -66,7 +66,10 @@ describe("orders routes", () => {
 		const created = await expectJson<any>(createRes, 201);
 		const orderQrCode: string = created.data.order.qr_code;
 
-		const res = await request(app, `/orders/qr/${encodeURIComponent(orderQrCode)}`);
+		const res = await request(
+			app,
+			`/orders/qr/${encodeURIComponent(orderQrCode)}`,
+		);
 		const json = await expectJson<any>(res, 200);
 		expect(json.success).toBe(true);
 		expect(json.data.order.qr_code).toBe(orderQrCode);

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { setupTestHooks, getApp } from "../../setup/hooks";
 import { expectJson } from "../../helpers/assertions";
-import { request, jsonHeaders } from "../../helpers/http";
 import { makeAuthHeaders } from "../../helpers/factories";
 import {
 	createMenuCategoryFixture,
 	createMenuItemFixture,
 } from "../../helpers/fixtures";
+import { jsonHeaders, request } from "../../helpers/http";
+import { getApp, setupTestHooks } from "../../setup/hooks";
 
 setupTestHooks();
 
@@ -49,8 +49,16 @@ describe("menu routes", () => {
 		const app = await getApp();
 		const catA = await createMenuCategoryFixture({ name: "A" });
 		const catB = await createMenuCategoryFixture({ name: "B" });
-		await createMenuItemFixture({ name: "ItemA", price: 100, category_id: catA.id });
-		await createMenuItemFixture({ name: "ItemB", price: 100, category_id: catB.id });
+		await createMenuItemFixture({
+			name: "ItemA",
+			price: 100,
+			category_id: catA.id,
+		});
+		await createMenuItemFixture({
+			name: "ItemB",
+			price: 100,
+			category_id: catB.id,
+		});
 
 		const res = await request(app, `/menu/items?categoryId=${catA.id}`);
 		const json = await expectJson<any>(res, 200);

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { setupTestHooks, getApp } from "../../setup/hooks";
 import { expectJson } from "../../helpers/assertions";
-import { request, jsonHeaders } from "../../helpers/http";
 import { randomEmail } from "../../helpers/factories";
+import { jsonHeaders, request } from "../../helpers/http";
+import { getApp, setupTestHooks } from "../../setup/hooks";
 
 setupTestHooks();
 

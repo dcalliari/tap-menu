@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { setupTestHooks, getApp } from "../../setup/hooks";
 import { expectHeaderContains } from "../../helpers/assertions";
 import { request } from "../../helpers/http";
+import { getApp, setupTestHooks } from "../../setup/hooks";
 
 setupTestHooks();
 
