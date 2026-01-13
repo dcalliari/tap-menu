@@ -8,7 +8,7 @@ import { Hono } from "hono";
 
 export const qrRoutes = new Hono()
 	.get("/table/:qr_code.svg", async (c) => {
-		const qrCode = c.req.param("qr_code");
+		const qrCode = c.req.param("qr_code") ?? c.req.param("qr_code.svg");
 		if (!qrCode || qrCode.length > 200) {
 			return c.json({ success: false, error: "Invalid QR code" }, 400);
 		}
@@ -21,7 +21,7 @@ export const qrRoutes = new Hono()
 		return c.body(svg);
 	})
 	.get("/order/:qr_code.svg", async (c) => {
-		const qrCode = c.req.param("qr_code");
+		const qrCode = c.req.param("qr_code") ?? c.req.param("qr_code.svg");
 		if (!qrCode || qrCode.length > 200) {
 			return c.json({ success: false, error: "Invalid QR code" }, 400);
 		}

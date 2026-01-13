@@ -1,11 +1,10 @@
-import { afterAll, beforeAll, beforeEach } from "bun:test";
+import { beforeAll, beforeEach } from "bun:test";
 import {
-	closeTestPools,
 	ensureTestDatabase,
 	resetDatabaseSchema,
 	truncateAllTables,
 } from "./database";
-import { disconnectRedis, flushRedis } from "./redis";
+import { flushRedis } from "./redis";
 
 let appPromise: Promise<any> | undefined;
 
@@ -27,17 +26,5 @@ export function setupTestHooks() {
 	beforeEach(async () => {
 		await truncateAllTables();
 		await flushRedis();
-	});
-
-	afterAll(async () => {
-		await disconnectRedis();
-		try {
-			const { db } = await import("@server/db");
-			// Drizzle exposes the underlying pg Pool via $client
-			await db.$client.end();
-		} catch {
-			// ignore
-		}
-		await closeTestPools();
 	});
 }

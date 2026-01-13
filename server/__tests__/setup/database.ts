@@ -36,7 +36,8 @@ export async function ensureTestDatabase() {
 		[dbName],
 	);
 	if (exists.rowCount === 0) {
-		await pool.query(`CREATE DATABASE ${JSON.stringify(dbName).slice(1, -1)}`);
+		const safe = `"${dbName.replaceAll('"', '""')}"`;
+		await pool.query(`CREATE DATABASE ${safe}`);
 	}
 }
 
