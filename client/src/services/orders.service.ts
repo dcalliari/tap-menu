@@ -1,5 +1,9 @@
 import { apiClient, parseJsonOrThrow } from "@/lib/api-client";
 
+type ListOrdersRes = Awaited<ReturnType<typeof apiClient.orders.$get>>;
+type ListOrdersJson = Awaited<ReturnType<ListOrdersRes["json"]>>;
+type ListOrdersSuccess = Extract<ListOrdersJson, { success: true }>;
+
 export type OrderStatus =
 	| "open"
 	| "preparing"
@@ -32,7 +36,7 @@ export async function listOrders(query: {
 			status: query.status,
 		},
 	});
-	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
+	return parseJsonOrThrow<ListOrdersSuccess>(res);
 }
 
 export async function getOrder(id: number) {

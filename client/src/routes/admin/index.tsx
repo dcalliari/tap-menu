@@ -20,9 +20,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth-context";
 import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
+import { useOrders } from "@/hooks/useOrders";
 import { useTableQrSvg, useTables } from "@/hooks/useTables";
 import { getAuthToken } from "@/lib/auth-token";
-import { tablesService } from "@/services";
+import { ordersService, tablesService } from "@/services";
+import type { OrderStatus } from "@/services/orders.service";
 
 export const Route = createFileRoute("/admin/")({
 	beforeLoad: () => {
@@ -89,6 +91,21 @@ function AdminManagementPage() {
 				setSelectedTableId(null);
 			}
 			await queryClient.invalidateQueries({ queryKey: ["tables", "list"] });
+		},
+	});
+
+	const [ordersStatusFilter, setOrdersStatusFilter] = useState<
+		OrderStatus | "all"
+	>("open");
+	const ordersQuery = useOrders({
+		status: ordersStatusFilter === "all" ? undefined : ordersStatusFilter,
+	});
+
+	const updateOrderStatusMutation = useMutation({
+		mutationFn: async (input: { id: number; status: OrderStatus }) =>
+			ordersService.updateOrderStatus(input.id, input.status),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ["orders", "list"] });
 		},
 	});
 
@@ -353,12 +370,162 @@ function AdminManagementPage() {
 							<CardDescription>Track and update order status.</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<p className="text-muted-foreground text-sm">
-								Coming next: active orders dashboard.
-							</p>
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-wrap items-center gap-2">
+									<Button
+										variant={
+											ordersStatusFilter === "open" ? "default" : "outline"
+										}
+										size="sm"
+										onClick={() => setOrdersStatusFilter("open")}
+									>
+										Open
+									</Button>
+									<Button
+										variant={
+											ordersStatusFilter === "preparing" ? "default" : "outline"
+										}
+										size="sm"
+										onClick={() => setOrdersStatusFilter("preparing")}
+									>
+										Preparing
+									</Button>
+									<Button
+										variant={
+											ordersStatusFilter === "ready" ? "default" : "outline"
+										}
+										size="sm"
+										onClick={() => setOrdersStatusFilter("ready")}
+									>
+										Ready
+									</Button>
+									<Button
+										variant={
+											ordersStatusFilter === "closed" ? "default" : "outline"
+										}
+										size="sm"
+										onClick={() => setOrdersStatusFilter("closed")}
+									>
+										Closed
+									</Button>
+									<Button
+										variant={
+											ordersStatusFilter === "cancelled" ? "default" : "outline"
+										}
+										size="sm"
+										onClick={() => setOrdersStatusFilter("cancelled")}
+									>
+										Cancelled
+									</Button>
+									<Button
+										variant={
+											ordersStatusFilter === "all" ? "default" : "outline"
+										}
+										size="sm"
+										onClick={() => setOrdersStatusFilter("all")}
+									>
+										All
+									</Button>
+								</div>
+
+								{ordersQuery.isLoading && (
+									<p className="text-muted-foreground text-sm">Loading…</p>
+								)}
+								{ordersQuery.isError && (
+									<p className="text-destructive text-sm">
+										Failed to load orders.
+									</p>
+								)}
+								{ordersQuery.data && (
+									<ul className="space-y-2">
+										{ordersQuery.data.data.map((order) => (
+											<li key={order.id} className="rounded-md border p-3">
+												<div className="flex items-start justify-between gap-3">
+													<div className="min-w-0">
+														<p className="text-sm font-medium">
+															Order #{order.id} • Table {order.table_id}
+														</p>
+														<p className="text-muted-foreground text-xs">
+															Status: {order.status} • Total: {order.total}
+														</p>
+													</div>
+													<div className="flex flex-wrap justify-end gap-2">
+														<Button
+															variant="outline"
+															size="sm"
+															disabled={updateOrderStatusMutation.isPending}
+															onClick={() =>
+																updateOrderStatusMutation.mutate({
+																	id: order.id,
+																	status: "preparing",
+																})
+															}
+														>
+															Preparing
+														</Button>
+														<Button
+															variant="outline"
+															size="sm"
+															disabled={updateOrderStatusMutation.isPending}
+															onClick={() =>
+																updateOrderStatusMutation.mutate({
+																	id: order.id,
+																	status: "ready",
+																})
+															}
+														>
+															Ready
+														</Button>
+														<Button
+															variant="outline"
+															size="sm"
+															disabled={updateOrderStatusMutation.isPending}
+															onClick={() =>
+																updateOrderStatusMutation.mutate({
+																	id: order.id,
+																	status: "closed",
+																})
+															}
+														>
+															Close
+														</Button>
+														<Button
+															variant="destructive"
+															size="sm"
+															disabled={updateOrderStatusMutation.isPending}
+															onClick={() =>
+																updateOrderStatusMutation.mutate({
+																	id: order.id,
+																	status: "cancelled",
+																})
+															}
+														>
+															Cancel
+														</Button>
+													</div>
+												</div>
+											</li>
+										))}
+									</ul>
+								)}
+
+								{updateOrderStatusMutation.isError && (
+									<p className="text-destructive text-sm">
+										{updateOrderStatusMutation.error instanceof Error
+											? updateOrderStatusMutation.error.message
+											: "Failed to update order status"}
+									</p>
+								)}
+							</div>
 						</CardContent>
 						<CardFooter>
-							<Button disabled>Open Orders Dashboard</Button>
+							<Button
+								variant="outline"
+								onClick={() => ordersQuery.refetch()}
+								disabled={ordersQuery.isFetching}
+							>
+								Refresh
+							</Button>
 						</CardFooter>
 					</Card>
 
