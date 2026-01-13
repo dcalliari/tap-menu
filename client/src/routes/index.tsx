@@ -4,6 +4,7 @@ import { useState } from "react";
 import { hcWithType } from "server/dist/client";
 import beaver from "@/assets/beaver.svg";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/auth-context";
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -16,6 +17,8 @@ const client = hcWithType(SERVER_URL);
 type ResponseType = Awaited<ReturnType<typeof client.index.$get>>;
 
 function Index() {
+	const auth = useAuth();
+
 	const [data, setData] = useState<
 		Awaited<ReturnType<ResponseType["json"]>> | undefined
 	>();
@@ -59,9 +62,25 @@ function Index() {
 						Docs
 					</a>
 				</Button>
-				<Button variant="outline" asChild>
-					<Link to="/admin">Admin</Link>
-				</Button>
+				{auth.isAuthenticated ? (
+					<>
+						<Button variant="outline" asChild>
+							<Link to="/admin">Admin</Link>
+						</Button>
+						<Button variant="destructive" onClick={() => auth.logout()}>
+							Logout
+						</Button>
+					</>
+				) : (
+					<>
+						<Button variant="outline" asChild>
+							<Link to="/login">Login</Link>
+						</Button>
+						<Button variant="outline" asChild>
+							<Link to="/register">Register</Link>
+						</Button>
+					</>
+				)}
 			</div>
 			{data && (
 				<pre className="bg-gray-100 p-4 rounded-md">

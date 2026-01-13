@@ -1,5 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -14,8 +19,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth-context";
+import { getAuthToken } from "@/lib/auth-token";
 
 export const Route = createFileRoute("/login")({
+	beforeLoad: () => {
+		if (getAuthToken()) {
+			throw redirect({ to: "/admin" });
+		}
+	},
 	component: LoginPage,
 });
 

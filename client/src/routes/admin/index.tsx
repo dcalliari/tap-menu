@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +15,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/contexts/auth-context";
 import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
 import { getAuthToken } from "@/lib/auth-token";
 
@@ -24,6 +30,9 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function AdminManagementPage() {
+	const navigate = useNavigate();
+	const auth = useAuth();
+
 	const [selectedCategoryId, setSelectedCategoryId] = useState<
 		string | undefined
 	>(undefined);
@@ -43,9 +52,25 @@ function AdminManagementPage() {
 							Manage menus, tables, and orders.
 						</p>
 					</div>
-					<Button variant="outline" asChild>
-						<Link to="/">Back to home</Link>
-					</Button>
+					<div className="flex items-center gap-2">
+						{auth.state.user?.email && (
+							<p className="text-muted-foreground hidden text-sm sm:block">
+								{auth.state.user.email}
+							</p>
+						)}
+						<Button variant="outline" asChild>
+							<Link to="/">Back to home</Link>
+						</Button>
+						<Button
+							variant="destructive"
+							onClick={() => {
+								auth.logout();
+								void navigate({ to: "/login" });
+							}}
+						>
+							Logout
+						</Button>
+					</div>
 				</header>
 
 				<section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
