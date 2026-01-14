@@ -8,182 +8,182 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as KitchenRouteImport } from './routes/kitchen'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as TableTableQrCodeRouteImport } from './routes/table/$tableQrCode'
-import { Route as OrderOrderQrCodeRouteImport } from './routes/order/$orderQrCode'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as AdminIndexRouteImport } from "./routes/admin/index";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as KitchenRouteImport } from "./routes/kitchen";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as OrderOrderQrCodeRouteImport } from "./routes/order/$orderQrCode";
+import { Route as RegisterRouteImport } from "./routes/register";
+import { Route as TableTableQrCodeRouteImport } from "./routes/table/$tableQrCode";
 
 const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/register",
+	path: "/register",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/login",
+	path: "/login",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const KitchenRoute = KitchenRouteImport.update({
-  id: '/kitchen',
-  path: '/kitchen',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/kitchen",
+	path: "/kitchen",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/admin/",
+	path: "/admin/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const TableTableQrCodeRoute = TableTableQrCodeRouteImport.update({
-  id: '/table/$tableQrCode',
-  path: '/table/$tableQrCode',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/table/$tableQrCode",
+	path: "/table/$tableQrCode",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const OrderOrderQrCodeRoute = OrderOrderQrCodeRouteImport.update({
-  id: '/order/$orderQrCode',
-  path: '/order/$orderQrCode',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/order/$orderQrCode",
+	path: "/order/$orderQrCode",
+	getParentRoute: () => rootRouteImport,
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/kitchen': typeof KitchenRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/order/$orderQrCode': typeof OrderOrderQrCodeRoute
-  '/table/$tableQrCode': typeof TableTableQrCodeRoute
-  '/admin': typeof AdminIndexRoute
+	"/": typeof IndexRoute;
+	"/kitchen": typeof KitchenRoute;
+	"/login": typeof LoginRoute;
+	"/register": typeof RegisterRoute;
+	"/order/$orderQrCode": typeof OrderOrderQrCodeRoute;
+	"/table/$tableQrCode": typeof TableTableQrCodeRoute;
+	"/admin": typeof AdminIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/kitchen': typeof KitchenRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/order/$orderQrCode': typeof OrderOrderQrCodeRoute
-  '/table/$tableQrCode': typeof TableTableQrCodeRoute
-  '/admin': typeof AdminIndexRoute
+	"/": typeof IndexRoute;
+	"/kitchen": typeof KitchenRoute;
+	"/login": typeof LoginRoute;
+	"/register": typeof RegisterRoute;
+	"/order/$orderQrCode": typeof OrderOrderQrCodeRoute;
+	"/table/$tableQrCode": typeof TableTableQrCodeRoute;
+	"/admin": typeof AdminIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/kitchen': typeof KitchenRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/order/$orderQrCode': typeof OrderOrderQrCodeRoute
-  '/table/$tableQrCode': typeof TableTableQrCodeRoute
-  '/admin/': typeof AdminIndexRoute
+	__root__: typeof rootRouteImport;
+	"/": typeof IndexRoute;
+	"/kitchen": typeof KitchenRoute;
+	"/login": typeof LoginRoute;
+	"/register": typeof RegisterRoute;
+	"/order/$orderQrCode": typeof OrderOrderQrCodeRoute;
+	"/table/$tableQrCode": typeof TableTableQrCodeRoute;
+	"/admin/": typeof AdminIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/kitchen'
-    | '/login'
-    | '/register'
-    | '/order/$orderQrCode'
-    | '/table/$tableQrCode'
-    | '/admin'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/kitchen'
-    | '/login'
-    | '/register'
-    | '/order/$orderQrCode'
-    | '/table/$tableQrCode'
-    | '/admin'
-  id:
-    | '__root__'
-    | '/'
-    | '/kitchen'
-    | '/login'
-    | '/register'
-    | '/order/$orderQrCode'
-    | '/table/$tableQrCode'
-    | '/admin/'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths:
+		| "/"
+		| "/kitchen"
+		| "/login"
+		| "/register"
+		| "/order/$orderQrCode"
+		| "/table/$tableQrCode"
+		| "/admin";
+	fileRoutesByTo: FileRoutesByTo;
+	to:
+		| "/"
+		| "/kitchen"
+		| "/login"
+		| "/register"
+		| "/order/$orderQrCode"
+		| "/table/$tableQrCode"
+		| "/admin";
+	id:
+		| "__root__"
+		| "/"
+		| "/kitchen"
+		| "/login"
+		| "/register"
+		| "/order/$orderQrCode"
+		| "/table/$tableQrCode"
+		| "/admin/";
+	fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KitchenRoute: typeof KitchenRoute
-  LoginRoute: typeof LoginRoute
-  RegisterRoute: typeof RegisterRoute
-  OrderOrderQrCodeRoute: typeof OrderOrderQrCodeRoute
-  TableTableQrCodeRoute: typeof TableTableQrCodeRoute
-  AdminIndexRoute: typeof AdminIndexRoute
+	IndexRoute: typeof IndexRoute;
+	KitchenRoute: typeof KitchenRoute;
+	LoginRoute: typeof LoginRoute;
+	RegisterRoute: typeof RegisterRoute;
+	OrderOrderQrCodeRoute: typeof OrderOrderQrCodeRoute;
+	TableTableQrCodeRoute: typeof TableTableQrCodeRoute;
+	AdminIndexRoute: typeof AdminIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kitchen': {
-      id: '/kitchen'
-      path: '/kitchen'
-      fullPath: '/kitchen'
-      preLoaderRoute: typeof KitchenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/': {
-      id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/table/$tableQrCode': {
-      id: '/table/$tableQrCode'
-      path: '/table/$tableQrCode'
-      fullPath: '/table/$tableQrCode'
-      preLoaderRoute: typeof TableTableQrCodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/order/$orderQrCode': {
-      id: '/order/$orderQrCode'
-      path: '/order/$orderQrCode'
-      fullPath: '/order/$orderQrCode'
-      preLoaderRoute: typeof OrderOrderQrCodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/register": {
+			id: "/register";
+			path: "/register";
+			fullPath: "/register";
+			preLoaderRoute: typeof RegisterRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/login": {
+			id: "/login";
+			path: "/login";
+			fullPath: "/login";
+			preLoaderRoute: typeof LoginRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/kitchen": {
+			id: "/kitchen";
+			path: "/kitchen";
+			fullPath: "/kitchen";
+			preLoaderRoute: typeof KitchenRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/": {
+			id: "/";
+			path: "/";
+			fullPath: "/";
+			preLoaderRoute: typeof IndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/admin/": {
+			id: "/admin/";
+			path: "/admin";
+			fullPath: "/admin";
+			preLoaderRoute: typeof AdminIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/table/$tableQrCode": {
+			id: "/table/$tableQrCode";
+			path: "/table/$tableQrCode";
+			fullPath: "/table/$tableQrCode";
+			preLoaderRoute: typeof TableTableQrCodeRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/order/$orderQrCode": {
+			id: "/order/$orderQrCode";
+			path: "/order/$orderQrCode";
+			fullPath: "/order/$orderQrCode";
+			preLoaderRoute: typeof OrderOrderQrCodeRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+	}
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KitchenRoute: KitchenRoute,
-  LoginRoute: LoginRoute,
-  RegisterRoute: RegisterRoute,
-  OrderOrderQrCodeRoute: OrderOrderQrCodeRoute,
-  TableTableQrCodeRoute: TableTableQrCodeRoute,
-  AdminIndexRoute: AdminIndexRoute,
-}
+	IndexRoute: IndexRoute,
+	KitchenRoute: KitchenRoute,
+	LoginRoute: LoginRoute,
+	RegisterRoute: RegisterRoute,
+	OrderOrderQrCodeRoute: OrderOrderQrCodeRoute,
+	TableTableQrCodeRoute: TableTableQrCodeRoute,
+	AdminIndexRoute: AdminIndexRoute,
+};
 export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
