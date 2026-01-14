@@ -24,6 +24,7 @@ type CartLine = {
 	name: string;
 	price: number;
 	quantity: number;
+	notes?: string;
 };
 
 function formatCents(value: number) {
@@ -80,6 +81,7 @@ function TableMenuPage() {
 				items: cartLines.map((line) => ({
 					menu_item_id: line.menuItemId,
 					quantity: line.quantity,
+					notes: line.notes?.trim() ? line.notes.trim() : undefined,
 				})),
 			});
 		},
@@ -199,6 +201,25 @@ function TableMenuPage() {
 												<p className="text-muted-foreground text-xs">
 													{formatCents(line.price)} × {line.quantity}
 												</p>
+												<Input
+													value={line.notes ?? ""}
+													onChange={(e) => {
+														const nextNotes = e.target.value;
+														setCart((prev) => {
+															const current = prev[line.menuItemId];
+															if (!current) return prev;
+															return {
+																...prev,
+																[line.menuItemId]: {
+																	...current,
+																	notes: nextNotes,
+																},
+															};
+														});
+													}}
+													placeholder="Notes (optional)"
+													className="mt-2 h-8"
+												/>
 											</div>
 											<div className="flex items-center gap-2">
 												<Button
