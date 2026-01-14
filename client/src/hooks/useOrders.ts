@@ -15,3 +15,11 @@ export function useOrders(
 			}),
 	});
 }
+
+export function useOrder(id: number, enabled = true) {
+	return useQuery({
+		queryKey: ["orders", "byId", id],
+		enabled,
+		queryFn: async () => ordersService.getOrder(id),
+	});
+}

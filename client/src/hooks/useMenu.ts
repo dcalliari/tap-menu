@@ -21,3 +21,10 @@ export function useMenuItems(categoryId: string | undefined) {
 		},
 	});
 }
+
+export function useAllMenuItems() {
+	return useQuery({
+		queryKey: ["menu", "items", "all"],
+		queryFn: async () => menuService.listMenuItems(),
+	});
+}

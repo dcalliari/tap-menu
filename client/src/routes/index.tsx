@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { hcWithType } from "server/dist/client";
 import beaver from "@/assets/beaver.svg";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ const client = hcWithType(SERVER_URL);
 type ResponseType = Awaited<ReturnType<typeof client.index.$get>>;
 
 function Index() {
+	const navigate = useNavigate();
 	const auth = useAuth();
 
 	const [data, setData] = useState<
@@ -38,6 +39,28 @@ function Index() {
 			}
 		},
 	});
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const tableQrCode = params.get("table_qr_code");
+		if (tableQrCode) {
+			void navigate({
+				to: "/table/$tableQrCode",
+				params: { tableQrCode },
+				replace: true,
+			});
+			return;
+		}
+
+		const orderQrCode = params.get("order_qr_code");
+		if (orderQrCode) {
+			void navigate({
+				to: "/order/$orderQrCode",
+				params: { orderQrCode },
+				replace: true,
+			});
+		}
+	}, [navigate]);
 
 	return (
 		<div className="max-w-xl mx-auto flex flex-col gap-6 items-center justify-center min-h-screen">
@@ -66,6 +89,9 @@ function Index() {
 					<>
 						<Button variant="outline" asChild>
 							<Link to="/admin">Admin</Link>
+						</Button>
+						<Button variant="outline" asChild>
+							<Link to="/kitchen">Kitchen</Link>
 						</Button>
 						<Button variant="destructive" onClick={() => auth.logout()}>
 							Logout

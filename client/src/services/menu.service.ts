@@ -53,8 +53,14 @@ export async function deleteMenuCategory(id: number) {
 	return parseJsonOrThrow<Awaited<ReturnType<(typeof res)["json"]>>>(res);
 }
 
-export async function listMenuItems(categoryId: string | string[]) {
-	const res = await apiClient.menu.items.$get({ query: { categoryId } });
+export async function listMenuItems(categoryId?: string | string[]) {
+	const categoryIdOrEmpty: string | string[] = categoryId ?? "";
+	const res = await apiClient.menu.items.$get({
+		query: {
+			// Server treats empty string as undefined
+			categoryId: categoryIdOrEmpty,
+		},
+	});
 	return parseJsonOrThrow<ListMenuItemsSuccess>(res);
 }
 
