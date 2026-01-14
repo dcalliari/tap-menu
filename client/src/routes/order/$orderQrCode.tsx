@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useAllMenuItems } from "@/hooks/useMenu";
 import { ordersService } from "@/services";
 
 export const Route = createFileRoute("/order/$orderQrCode")({
@@ -25,6 +27,12 @@ function formatCents(value: number) {
 
 function OrderStatusPage() {
 	const { orderQrCode } = Route.useParams();
+
+	const menuItemsQuery = useAllMenuItems();
+	const menuItemNameById = useMemo(() => {
+		const items = menuItemsQuery.data?.data ?? [];
+		return new Map(items.map((mi) => [mi.id, mi.name] as const));
+	}, [menuItemsQuery.data]);
 
 	const orderQuery = useQuery({
 		queryKey: ["orders", "qr", orderQrCode],
@@ -97,7 +105,8 @@ function OrderStatusPage() {
 												>
 													<div>
 														<p className="text-sm font-medium">
-															Item #{item.menu_item_id}
+															{menuItemNameById.get(item.menu_item_id) ??
+																`Item #${item.menu_item_id}`}
 														</p>
 														<p className="text-muted-foreground text-xs">
 															{formatCents(item.price_at_time)} ×{" "}
