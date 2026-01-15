@@ -130,7 +130,11 @@ function TableMenuPage() {
 								<p className="text-sm font-medium">Cart</p>
 								<p className="text-muted-foreground text-xs">{cartSummary}</p>
 							</div>
-							<Button variant="outline" size="sm" onClick={() => setCartOpen(false)}>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setCartOpen(false)}
+							>
 								Close
 							</Button>
 						</div>
@@ -241,7 +245,7 @@ function TableMenuPage() {
 														quantity: current.quantity + 1,
 													},
 												};
-										});
+											});
 										}}
 									>
 										+
@@ -294,7 +298,9 @@ function TableMenuPage() {
 					<Card>
 						<CardHeader>
 							<CardTitle>Categories</CardTitle>
-							<CardDescription>Pick a category to browse items.</CardDescription>
+							<CardDescription>
+								Pick a category to browse items.
+							</CardDescription>
 						</CardHeader>
 						<CardContent>
 							{categoriesQuery.isLoading && (
@@ -327,102 +333,104 @@ function TableMenuPage() {
 					</Card>
 
 					<Card>
-					<CardHeader>
-						<CardTitle>Items</CardTitle>
-						<CardDescription>
-							{selectedCategoryId
-								? "Tap an item to add it to your cart."
-								: "Select a category."}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						{!selectedCategoryId && (
-							<p className="text-muted-foreground text-sm">
-								Choose a category to see items.
-							</p>
-						)}
+						<CardHeader>
+							<CardTitle>Items</CardTitle>
+							<CardDescription>
+								{selectedCategoryId
+									? "Tap an item to add it to your cart."
+									: "Select a category."}
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							{!selectedCategoryId && (
+								<p className="text-muted-foreground text-sm">
+									Choose a category to see items.
+								</p>
+							)}
 
-						{itemsQuery.isLoading && selectedCategoryId && (
-							<p className="text-muted-foreground text-sm">Loading…</p>
-						)}
-						{itemsQuery.isError && selectedCategoryId && (
-							<p className="text-destructive text-sm">Failed to load items.</p>
-						)}
-						{itemsQuery.data && (
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-								{itemsQuery.data.data.map((item) => {
-									const cartLine = cart[item.id];
-									const qty = cartLine?.quantity ?? 0;
-									return (
-										<div key={item.id} className="rounded-md border p-3">
-											<div className="flex items-start justify-between gap-3">
-												<div className="min-w-0">
-													<p className="truncate text-sm font-medium">
-														{item.name}
-													</p>
-													{item.description && (
-														<p className="text-muted-foreground mt-1 text-xs">
-															{item.description}
+							{itemsQuery.isLoading && selectedCategoryId && (
+								<p className="text-muted-foreground text-sm">Loading…</p>
+							)}
+							{itemsQuery.isError && selectedCategoryId && (
+								<p className="text-destructive text-sm">
+									Failed to load items.
+								</p>
+							)}
+							{itemsQuery.data && (
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+									{itemsQuery.data.data.map((item) => {
+										const cartLine = cart[item.id];
+										const qty = cartLine?.quantity ?? 0;
+										return (
+											<div key={item.id} className="rounded-md border p-3">
+												<div className="flex items-start justify-between gap-3">
+													<div className="min-w-0">
+														<p className="truncate text-sm font-medium">
+															{item.name}
 														</p>
-													)}
-												</div>
-												<div className="flex shrink-0 flex-col items-end gap-2">
-													<p className="text-sm font-medium">
-														{formatCents(item.price)}
-													</p>
-													<Button
-														size="sm"
-														disabled={!item.is_available}
-														onClick={() => {
-															setCart((prev) => {
-																const existing = prev[item.id];
-																const nextQty = (existing?.quantity ?? 0) + 1;
-																return {
-																	...prev,
-																	[item.id]: {
-																		menuItemId: item.id,
-																		name: item.name,
-																		price: item.price,
-																		quantity: nextQty,
-																	},
-																};
-															});
-														}}
-													>
-														{item.is_available
-															? qty > 0
-																? `Add (+${qty})`
-																: "Add"
-															: "Unavailable"}
-													</Button>
+														{item.description && (
+															<p className="text-muted-foreground mt-1 text-xs">
+																{item.description}
+															</p>
+														)}
+													</div>
+													<div className="flex shrink-0 flex-col items-end gap-2">
+														<p className="text-sm font-medium">
+															{formatCents(item.price)}
+														</p>
+														<Button
+															size="sm"
+															disabled={!item.is_available}
+															onClick={() => {
+																setCart((prev) => {
+																	const existing = prev[item.id];
+																	const nextQty = (existing?.quantity ?? 0) + 1;
+																	return {
+																		...prev,
+																		[item.id]: {
+																			menuItemId: item.id,
+																			name: item.name,
+																			price: item.price,
+																			quantity: nextQty,
+																		},
+																	};
+																});
+															}}
+														>
+															{item.is_available
+																? qty > 0
+																	? `Add (+${qty})`
+																	: "Add"
+																: "Unavailable"}
+														</Button>
+													</div>
 												</div>
 											</div>
-										</div>
-									);
-								})}
-							</div>
-						)}
-					</CardContent>
+										);
+									})}
+								</div>
+							)}
+						</CardContent>
 						<CardFooter>
-						<div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-							<p className="text-muted-foreground text-sm">
-								Tip: you can place multiple orders.
-							</p>
-							<div className="flex items-center gap-2">
-								<Input
-									readOnly
-									value={tableQrCode}
-									className="hidden w-64 sm:block"
-								/>
-								<Button
-									variant="outline"
-									onClick={() => setCart({})}
-									disabled={cartLines.length === 0}
-								>
-									Clear cart
-								</Button>
+							<div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+								<p className="text-muted-foreground text-sm">
+									Tip: you can place multiple orders.
+								</p>
+								<div className="flex items-center gap-2">
+									<Input
+										readOnly
+										value={tableQrCode}
+										className="hidden w-64 sm:block"
+									/>
+									<Button
+										variant="outline"
+										onClick={() => setCart({})}
+										disabled={cartLines.length === 0}
+									>
+										Clear cart
+									</Button>
+								</div>
 							</div>
-						</div>
 						</CardFooter>
 					</Card>
 				</div>

@@ -421,7 +421,9 @@ function AdminManagementPage() {
 												className="flex items-start justify-between gap-4 rounded-md border p-3"
 											>
 												<div className="min-w-0">
-													<p className="truncate text-sm font-medium">{item.name}</p>
+													<p className="truncate text-sm font-medium">
+														{item.name}
+													</p>
 													<p className="text-muted-foreground text-xs">
 														{formatCents(item.price)}
 														{item.is_available ? "" : " • Unavailable"}
@@ -432,12 +434,12 @@ function AdminManagementPage() {
 													size="sm"
 													disabled={deleteItemMutation.isPending}
 													onClick={() => {
-													const ok = window.confirm(
-														`Delete item "${item.name}"?`,
-													);
-													if (!ok) return;
-													deleteItemMutation.mutate(item.id);
-												}}
+														const ok = window.confirm(
+															`Delete item "${item.name}"?`,
+														);
+														if (!ok) return;
+														deleteItemMutation.mutate(item.id);
+													}}
 												>
 													Delete
 												</Button>
