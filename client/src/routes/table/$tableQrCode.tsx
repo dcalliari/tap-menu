@@ -147,8 +147,23 @@ function TableMenuPage() {
 	}
 
 	function renderCartActions() {
+		const errorMessage =
+			createOrderMutation.isError &&
+			(createOrderMutation.error instanceof Error
+				? createOrderMutation.error.message
+				: "Failed to place order");
+
 		return (
-			<div className="flex flex-col gap-2">
+			<div className="flex flex-col gap-3">
+				{cartLines.length > 0 && (
+					<div className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-2 text-sm">
+						<span className="text-muted-foreground">Total</span>
+						<span className="font-medium">{formatCents(cartTotal)}</span>
+					</div>
+				)}
+
+				{errorMessage && <p className="text-destructive text-sm">{errorMessage}</p>}
+
 				<Button
 					disabled={cartLines.length === 0 || createOrderMutation.isPending}
 					onClick={() => createOrderMutation.mutate()}
@@ -176,92 +191,91 @@ function TableMenuPage() {
 				) : (
 					<ul className="space-y-3">
 						{cartLines.map((line) => (
-							<li
-								key={line.menuItemId}
-								className="flex items-start justify-between gap-3"
-							>
-								<div className="min-w-0">
-									<p className="truncate text-sm font-medium">{line.name}</p>
-									<p className="text-muted-foreground text-xs">
-										{formatCents(line.price)} × {line.quantity}
-									</p>
-									<Input
-										value={line.notes ?? ""}
-										onChange={(e) => {
-											const nextNotes = e.target.value;
-											setCart((prev) => {
-												const current = prev[line.menuItemId];
-												if (!current) return prev;
-												return {
-													...prev,
-													[line.menuItemId]: {
-														...current,
-														notes: nextNotes,
-													},
-												};
-											});
-										}}
-										placeholder="Notes (optional)"
-										className="mt-2 h-8"
-									/>
+							<li key={line.menuItemId} className="rounded-md border p-3">
+								<div className="flex items-start justify-between gap-3">
+									<div className="min-w-0">
+										<p className="truncate text-sm font-medium">{line.name}</p>
+										<p className="text-muted-foreground text-xs">
+											{formatCents(line.price)} each
+										</p>
+									</div>
+									<div className="flex shrink-0 flex-col items-end gap-2">
+										<p className="text-sm font-semibold">
+											{formatCents(line.price * line.quantity)}
+										</p>
+										<div className="flex items-center gap-2">
+											<Button
+												variant="outline"
+												size="sm"
+												className="h-8 w-8 px-0"
+												onClick={() => {
+													setCart((prev) => {
+														const current = prev[line.menuItemId];
+														if (!current) return prev;
+														const nextQty = current.quantity - 1;
+														if (nextQty <= 0) {
+															const { [line.menuItemId]: _removed, ...rest } = prev;
+															return rest;
+														}
+														return {
+															...prev,
+															[line.menuItemId]: {
+																...current,
+																quantity: nextQty,
+															},
+														};
+													});
+												}}
+											>
+												-
+											</Button>
+											<p className="w-6 text-center text-sm">{line.quantity}</p>
+											<Button
+												variant="outline"
+												size="sm"
+												className="h-8 w-8 px-0"
+												onClick={() => {
+													setCart((prev) => {
+														const current = prev[line.menuItemId];
+														if (!current) return prev;
+														return {
+															...prev,
+															[line.menuItemId]: {
+																...current,
+																quantity: current.quantity + 1,
+															},
+														};
+													});
+												}}
+											>
+												+
+											</Button>
+										</div>
+									</div>
 								</div>
-								<div className="flex items-center gap-2">
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => {
-											setCart((prev) => {
-												const current = prev[line.menuItemId];
-												if (!current) return prev;
-												const nextQty = current.quantity - 1;
-												if (nextQty <= 0) {
-													const { [line.menuItemId]: _removed, ...rest } = prev;
-													return rest;
-												}
-												return {
-													...prev,
-													[line.menuItemId]: {
-														...current,
-														quantity: nextQty,
-													},
-												};
-											});
-										}}
-									>
-										-
-									</Button>
-									<p className="w-6 text-center text-sm">{line.quantity}</p>
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => {
-											setCart((prev) => {
-												const current = prev[line.menuItemId];
-												if (!current) return prev;
-												return {
-													...prev,
-													[line.menuItemId]: {
-														...current,
-														quantity: current.quantity + 1,
-													},
-												};
-											});
-										}}
-									>
-										+
-									</Button>
-								</div>
+
+								<Input
+									value={line.notes ?? ""}
+									onChange={(e) => {
+										const nextNotes = e.target.value;
+										setCart((prev) => {
+											const current = prev[line.menuItemId];
+											if (!current) return prev;
+											return {
+												...prev,
+												[line.menuItemId]: {
+													...current,
+													notes: nextNotes,
+												},
+											};
+										});
+									}}
+									placeholder="Notes (optional)"
+									className="mt-3 h-9"
+								/>
 							</li>
 						))}
 					</ul>
-				)}
-
-				{createOrderMutation.isError && (
-					<p className="text-destructive mt-3 text-sm">
-						{createOrderMutation.error instanceof Error
-							? createOrderMutation.error.message
-							: "Failed to place order"}
-					</p>
 				)}
 			</>
 		);
@@ -352,9 +366,7 @@ function TableMenuPage() {
 								<p className="text-muted-foreground text-sm">Loading…</p>
 							)}
 							{itemsQuery.isError && selectedCategoryId && (
-								<p className="text-destructive text-sm">
-									Failed to load items.
-								</p>
+								<p className="text-destructive text-sm">Failed to load items.</p>
 							)}
 							{itemsQuery.data && (
 								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -391,10 +403,7 @@ function TableMenuPage() {
 												}
 												return {
 													...prev,
-													[item.id]: {
-														...existing,
-														quantity: nextQty,
-													},
+													[item.id]: { ...existing, quantity: nextQty },
 												};
 											});
 										};
@@ -490,8 +499,8 @@ function TableMenuPage() {
 														)}
 													</div>
 												</div>
-											</div>
-										);
+												</div>
+											);
 									})}
 								</div>
 							)}
