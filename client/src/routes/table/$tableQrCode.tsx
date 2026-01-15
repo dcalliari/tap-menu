@@ -162,7 +162,9 @@ function TableMenuPage() {
 					</div>
 				)}
 
-				{errorMessage && <p className="text-destructive text-sm">{errorMessage}</p>}
+				{errorMessage && (
+					<p className="text-destructive text-sm">{errorMessage}</p>
+				)}
 
 				<Button
 					disabled={cartLines.length === 0 || createOrderMutation.isPending}
@@ -214,7 +216,8 @@ function TableMenuPage() {
 														if (!current) return prev;
 														const nextQty = current.quantity - 1;
 														if (nextQty <= 0) {
-															const { [line.menuItemId]: _removed, ...rest } = prev;
+															const { [line.menuItemId]: _removed, ...rest } =
+																prev;
 															return rest;
 														}
 														return {
@@ -366,7 +369,9 @@ function TableMenuPage() {
 								<p className="text-muted-foreground text-sm">Loading…</p>
 							)}
 							{itemsQuery.isError && selectedCategoryId && (
-								<p className="text-destructive text-sm">Failed to load items.</p>
+								<p className="text-destructive text-sm">
+									Failed to load items.
+								</p>
 							)}
 							{itemsQuery.data && (
 								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -499,8 +504,8 @@ function TableMenuPage() {
 														)}
 													</div>
 												</div>
-												</div>
-											);
+											</div>
+										);
 									})}
 								</div>
 							)}
