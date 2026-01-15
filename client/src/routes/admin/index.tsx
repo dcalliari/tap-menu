@@ -9,6 +9,17 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -356,22 +367,35 @@ function AdminManagementPage() {
 										>
 											Clear selection
 										</Button>
-										<Button
-											variant="destructive"
-											disabled={deleteSelectedCategoryMutation.isPending}
-											onClick={() => {
-												if (!selectedCategoryNumber) return;
-												const ok = window.confirm(
-													"Delete the selected category? This does not delete items automatically.",
-												);
-												if (!ok) return;
-												deleteSelectedCategoryMutation.mutate();
-											}}
-										>
-											{deleteSelectedCategoryMutation.isPending
-												? "Deleting…"
-												: "Delete selected"}
-										</Button>
+										<AlertDialog>
+											<AlertDialogTrigger asChild>
+												<Button
+													variant="destructive"
+													disabled={deleteSelectedCategoryMutation.isPending}
+												>
+													{deleteSelectedCategoryMutation.isPending
+														? "Deleting…"
+														: "Delete selected"}
+												</Button>
+											</AlertDialogTrigger>
+											<AlertDialogContent>
+												<AlertDialogHeader>
+													<AlertDialogTitle>Delete Category</AlertDialogTitle>
+													<AlertDialogDescription>
+														Are you sure you want to delete this category? This action cannot be undone. Items in this category will not be deleted automatically.
+													</AlertDialogDescription>
+												</AlertDialogHeader>
+												<AlertDialogFooter>
+													<AlertDialogCancel>Cancel</AlertDialogCancel>
+													<AlertDialogAction
+														onClick={() => deleteSelectedCategoryMutation.mutate()}
+														className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+													>
+														Delete
+													</AlertDialogAction>
+												</AlertDialogFooter>
+											</AlertDialogContent>
+										</AlertDialog>
 									</div>
 								)}
 								{deleteSelectedCategoryMutation.isError && (
@@ -458,20 +482,34 @@ function AdminManagementPage() {
 														{item.is_available ? "" : " • Unavailable"}
 													</p>
 												</div>
-												<Button
-													variant="destructive"
-													size="sm"
-													disabled={deleteItemMutation.isPending}
-													onClick={() => {
-														const ok = window.confirm(
-															`Delete item "${item.name}"?`,
-														);
-														if (!ok) return;
-														deleteItemMutation.mutate(item.id);
-													}}
-												>
-													Delete
-												</Button>
+												<AlertDialog>
+													<AlertDialogTrigger asChild>
+														<Button
+															variant="destructive"
+															size="sm"
+															disabled={deleteItemMutation.isPending}
+														>
+															Delete
+														</Button>
+													</AlertDialogTrigger>
+													<AlertDialogContent>
+														<AlertDialogHeader>
+															<AlertDialogTitle>Delete Menu Item</AlertDialogTitle>
+															<AlertDialogDescription>
+																Are you sure you want to delete "{item.name}"? This action cannot be undone.
+															</AlertDialogDescription>
+														</AlertDialogHeader>
+														<AlertDialogFooter>
+															<AlertDialogCancel>Cancel</AlertDialogCancel>
+															<AlertDialogAction
+																onClick={() => deleteItemMutation.mutate(item.id)}
+																className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+															>
+																Delete
+															</AlertDialogAction>
+														</AlertDialogFooter>
+													</AlertDialogContent>
+												</AlertDialog>
 											</li>
 										))}
 									</ul>
@@ -568,14 +606,34 @@ function AdminManagementPage() {
 													>
 														QR
 													</Button>
-													<Button
-														variant="destructive"
-														size="sm"
-														disabled={deleteTableMutation.isPending}
-														onClick={() => deleteTableMutation.mutate(table.id)}
-													>
-														Delete
-													</Button>
+													<AlertDialog>
+														<AlertDialogTrigger asChild>
+															<Button
+																variant="destructive"
+																size="sm"
+																disabled={deleteTableMutation.isPending}
+															>
+																Delete
+															</Button>
+														</AlertDialogTrigger>
+														<AlertDialogContent>
+															<AlertDialogHeader>
+																<AlertDialogTitle>Delete Table</AlertDialogTitle>
+																<AlertDialogDescription>
+																	Are you sure you want to delete Table {table.number}? This action cannot be undone.
+																</AlertDialogDescription>
+															</AlertDialogHeader>
+															<AlertDialogFooter>
+																<AlertDialogCancel>Cancel</AlertDialogCancel>
+																<AlertDialogAction
+																	onClick={() => deleteTableMutation.mutate(table.id)}
+																	className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+																>
+																	Delete
+																</AlertDialogAction>
+															</AlertDialogFooter>
+														</AlertDialogContent>
+													</AlertDialog>
 												</div>
 											</li>
 										))}
