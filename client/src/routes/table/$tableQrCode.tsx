@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
+import { cn } from "@/lib/utils";
 import { ordersService, tablesService } from "@/services";
 
 export const Route = createFileRoute("/table/$tableQrCode")({
@@ -60,6 +61,7 @@ function TableMenuPage() {
 	const itemsQuery = useMenuItems(selectedCategoryId);
 
 	const [cart, setCart] = useState<Record<number, CartLine>>({});
+	const [cartOpen, setCartOpen] = useState(false);
 
 	const cartLines = useMemo(() => Object.values(cart), [cart]);
 	const cartCount = useMemo(
@@ -102,6 +104,165 @@ function TableMenuPage() {
 		return "Table";
 	}, [tableQuery.data, tableQuery.isLoading]);
 
+	const cartSummary = useMemo(() => {
+		if (cartCount === 0) return "No items yet.";
+		return `${cartCount} item${cartCount === 1 ? "" : "s"} • ${formatCents(cartTotal)}`;
+	}, [cartCount, cartTotal]);
+
+	function CartPanel(props: { variant: "card" | "drawer" }) {
+		return (
+			<>
+				{props.variant === "card" ? (
+					<Card>
+						<CardHeader>
+							<CardTitle>Cart</CardTitle>
+							<CardDescription>{cartSummary}</CardDescription>
+						</CardHeader>
+						<CardContent>{renderCartBody()}</CardContent>
+						<CardFooter className="flex flex-col items-stretch gap-2">
+							{renderCartActions()}
+						</CardFooter>
+					</Card>
+				) : (
+					<div className="flex h-full flex-col">
+						<div className="flex items-start justify-between gap-3 border-b p-4">
+							<div className="min-w-0">
+								<p className="text-sm font-medium">Cart</p>
+								<p className="text-muted-foreground text-xs">{cartSummary}</p>
+							</div>
+							<Button variant="outline" size="sm" onClick={() => setCartOpen(false)}>
+								Close
+							</Button>
+						</div>
+						<div className="flex-1 overflow-auto p-4">{renderCartBody()}</div>
+						<div className="border-t p-4">{renderCartActions()}</div>
+					</div>
+				)}
+			</>
+		);
+	}
+
+	function renderCartActions() {
+		return (
+			<div className="flex flex-col gap-2">
+				<Button
+					disabled={cartLines.length === 0 || createOrderMutation.isPending}
+					onClick={() => createOrderMutation.mutate()}
+				>
+					{createOrderMutation.isPending ? "Placing order…" : "Place order"}
+				</Button>
+				<Button
+					variant="outline"
+					disabled={cartLines.length === 0}
+					onClick={() => setCart({})}
+				>
+					Clear cart
+				</Button>
+			</div>
+		);
+	}
+
+	function renderCartBody() {
+		return (
+			<>
+				{cartLines.length === 0 ? (
+					<p className="text-muted-foreground text-sm">
+						Add items from the menu to get started.
+					</p>
+				) : (
+					<ul className="space-y-3">
+						{cartLines.map((line) => (
+							<li
+								key={line.menuItemId}
+								className="flex items-start justify-between gap-3"
+							>
+								<div className="min-w-0">
+									<p className="truncate text-sm font-medium">{line.name}</p>
+									<p className="text-muted-foreground text-xs">
+										{formatCents(line.price)} × {line.quantity}
+									</p>
+									<Input
+										value={line.notes ?? ""}
+										onChange={(e) => {
+											const nextNotes = e.target.value;
+											setCart((prev) => {
+												const current = prev[line.menuItemId];
+												if (!current) return prev;
+												return {
+													...prev,
+													[line.menuItemId]: {
+														...current,
+														notes: nextNotes,
+													},
+												};
+											});
+										}}
+										placeholder="Notes (optional)"
+										className="mt-2 h-8"
+									/>
+								</div>
+								<div className="flex items-center gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => {
+											setCart((prev) => {
+												const current = prev[line.menuItemId];
+												if (!current) return prev;
+												const nextQty = current.quantity - 1;
+												if (nextQty <= 0) {
+													const { [line.menuItemId]: _removed, ...rest } = prev;
+													return rest;
+												}
+												return {
+													...prev,
+													[line.menuItemId]: {
+														...current,
+														quantity: nextQty,
+													},
+												};
+											});
+										}}
+									>
+										-
+									</Button>
+									<p className="w-6 text-center text-sm">{line.quantity}</p>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => {
+											setCart((prev) => {
+												const current = prev[line.menuItemId];
+												if (!current) return prev;
+												return {
+													...prev,
+													[line.menuItemId]: {
+														...current,
+														quantity: current.quantity + 1,
+													},
+												};
+										});
+										}}
+									>
+										+
+									</Button>
+								</div>
+							</li>
+						))}
+					</ul>
+				)}
+
+				{createOrderMutation.isError && (
+					<p className="text-destructive mt-3 text-sm">
+						{createOrderMutation.error instanceof Error
+							? createOrderMutation.error.message
+							: "Failed to place order"}
+					</p>
+				)}
+			</>
+		);
+	}
+
 	return (
 		<AppShell
 			title="Menu"
@@ -129,167 +290,43 @@ function TableMenuPage() {
 			)}
 
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
-				<Card>
-					<CardHeader>
-						<CardTitle>Categories</CardTitle>
-						<CardDescription>Pick a category to browse items.</CardDescription>
-					</CardHeader>
-					<CardContent>
-						{categoriesQuery.isLoading && (
-							<p className="text-muted-foreground text-sm">Loading…</p>
-						)}
-						{categoriesQuery.isError && (
-							<p className="text-destructive text-sm">
-								Failed to load categories.
-							</p>
-						)}
-						{categoriesQuery.data && (
-							<div className="flex flex-wrap gap-2">
-								{categoriesQuery.data.data.map((category) => (
-									<Button
-										key={category.id}
-										size="sm"
-										variant={
-											selectedCategoryId === String(category.id)
-												? "default"
-												: "outline"
-										}
-										onClick={() => setSelectedCategoryId(String(category.id))}
-									>
-										{category.name}
-									</Button>
-								))}
-							</div>
-						)}
-					</CardContent>
-				</Card>
+				<div className="flex flex-col gap-4">
+					<Card>
+						<CardHeader>
+							<CardTitle>Categories</CardTitle>
+							<CardDescription>Pick a category to browse items.</CardDescription>
+						</CardHeader>
+						<CardContent>
+							{categoriesQuery.isLoading && (
+								<p className="text-muted-foreground text-sm">Loading…</p>
+							)}
+							{categoriesQuery.isError && (
+								<p className="text-destructive text-sm">
+									Failed to load categories.
+								</p>
+							)}
+							{categoriesQuery.data && (
+								<div className="flex flex-wrap gap-2">
+									{categoriesQuery.data.data.map((category) => (
+										<Button
+											key={category.id}
+											size="sm"
+											variant={
+												selectedCategoryId === String(category.id)
+													? "default"
+													: "outline"
+											}
+											onClick={() => setSelectedCategoryId(String(category.id))}
+										>
+											{category.name}
+										</Button>
+									))}
+								</div>
+							)}
+						</CardContent>
+					</Card>
 
-				<Card>
-					<CardHeader>
-						<CardTitle>Cart</CardTitle>
-						<CardDescription>
-							{cartCount === 0
-								? "No items yet."
-								: `${cartCount} item${cartCount === 1 ? "" : "s"} • ${formatCents(cartTotal)}`}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						{cartLines.length === 0 ? (
-							<p className="text-muted-foreground text-sm">
-								Add items from the menu to get started.
-							</p>
-						) : (
-							<ul className="space-y-3">
-								{cartLines.map((line) => (
-									<li
-										key={line.menuItemId}
-										className="flex items-center justify-between gap-3"
-									>
-										<div className="min-w-0">
-											<p className="truncate text-sm font-medium">
-												{line.name}
-											</p>
-											<p className="text-muted-foreground text-xs">
-												{formatCents(line.price)} × {line.quantity}
-											</p>
-											<Input
-												value={line.notes ?? ""}
-												onChange={(e) => {
-													const nextNotes = e.target.value;
-													setCart((prev) => {
-														const current = prev[line.menuItemId];
-														if (!current) return prev;
-														return {
-															...prev,
-															[line.menuItemId]: {
-																...current,
-																notes: nextNotes,
-															},
-														};
-													});
-												}}
-												placeholder="Notes (optional)"
-												className="mt-2 h-8"
-											/>
-										</div>
-										<div className="flex items-center gap-2">
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => {
-													setCart((prev) => {
-														const current = prev[line.menuItemId];
-														if (!current) return prev;
-														const nextQty = current.quantity - 1;
-														if (nextQty <= 0) {
-															const { [line.menuItemId]: _removed, ...rest } =
-																prev;
-															return rest;
-														}
-														return {
-															...prev,
-															[line.menuItemId]: {
-																...current,
-																quantity: nextQty,
-															},
-														};
-													});
-												}}
-											>
-												-
-											</Button>
-											<p className="w-6 text-center text-sm">{line.quantity}</p>
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => {
-													setCart((prev) => {
-														const current = prev[line.menuItemId];
-														if (!current) return prev;
-														return {
-															...prev,
-															[line.menuItemId]: {
-																...current,
-																quantity: current.quantity + 1,
-															},
-														};
-													});
-												}}
-											>
-												+
-											</Button>
-										</div>
-									</li>
-								))}
-							</ul>
-						)}
-
-						{createOrderMutation.isError && (
-							<p className="text-destructive mt-3 text-sm">
-								{createOrderMutation.error instanceof Error
-									? createOrderMutation.error.message
-									: "Failed to place order"}
-							</p>
-						)}
-					</CardContent>
-					<CardFooter className="flex flex-col items-stretch gap-2">
-						<Button
-							disabled={cartLines.length === 0 || createOrderMutation.isPending}
-							onClick={() => createOrderMutation.mutate()}
-						>
-							{createOrderMutation.isPending ? "Placing order…" : "Place order"}
-						</Button>
-						<Button
-							variant="outline"
-							disabled={cartLines.length === 0}
-							onClick={() => setCart({})}
-						>
-							Clear cart
-						</Button>
-					</CardFooter>
-				</Card>
-
-				<Card className="lg:col-span-2">
+					<Card>
 					<CardHeader>
 						<CardTitle>Items</CardTitle>
 						<CardDescription>
@@ -366,7 +403,7 @@ function TableMenuPage() {
 							</div>
 						)}
 					</CardContent>
-					<CardFooter>
+						<CardFooter>
 						<div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 							<p className="text-muted-foreground text-sm">
 								Tip: you can place multiple orders.
@@ -386,8 +423,57 @@ function TableMenuPage() {
 								</Button>
 							</div>
 						</div>
-					</CardFooter>
-				</Card>
+						</CardFooter>
+					</Card>
+				</div>
+
+				<div className="hidden lg:block">
+					<CartPanel variant="card" />
+				</div>
+			</div>
+
+			{cartCount > 0 && (
+				<div className="lg:hidden">
+					<div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
+						<div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3">
+							<div className="min-w-0">
+								<p className="truncate text-sm font-medium">{cartSummary}</p>
+								<p className="text-muted-foreground text-xs">
+									Tap to review before placing your order.
+								</p>
+							</div>
+							<Button onClick={() => setCartOpen(true)}>View cart</Button>
+						</div>
+					</div>
+					<div className="h-16" />
+				</div>
+			)}
+
+			<div
+				className={cn(
+					"fixed inset-0 z-50 lg:hidden",
+					cartOpen ? "" : "pointer-events-none",
+				)}
+				aria-hidden={!cartOpen}
+			>
+				<button
+					type="button"
+					aria-label="Close cart"
+					className={cn(
+						"absolute inset-0 bg-black/50 transition-opacity",
+						cartOpen ? "opacity-100" : "opacity-0",
+						cartOpen ? "" : "pointer-events-none",
+					)}
+					onClick={() => setCartOpen(false)}
+				/>
+				<div
+					className={cn(
+						"absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-hidden rounded-t-xl border bg-background shadow-lg transition-transform",
+						cartOpen ? "translate-y-0" : "translate-y-full",
+					)}
+				>
+					<CartPanel variant="drawer" />
+				</div>
 			</div>
 		</AppShell>
 	);

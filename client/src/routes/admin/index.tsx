@@ -5,7 +5,7 @@ import {
 	redirect,
 	useNavigate,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,29 @@ import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
 import { useOrders } from "@/hooks/useOrders";
 import { useTableQrSvg, useTables } from "@/hooks/useTables";
 import { getAuthToken } from "@/lib/auth-token";
-import { ordersService, tablesService } from "@/services";
+import { menuService, ordersService, tablesService } from "@/services";
 import type { OrderStatus } from "@/services/orders.service";
+
+function formatCents(value: number) {
+	return new Intl.NumberFormat(undefined, {
+		style: "currency",
+		currency: "USD",
+	}).format(value / 100);
+}
+
+function parsePriceToCents(price: string) {
+	const trimmed = price.trim();
+	if (!trimmed) {
+		throw new Error("Price is required");
+	}
+
+	const numeric = Number(trimmed);
+	if (!Number.isFinite(numeric) || numeric < 0) {
+		throw new Error("Price must be a valid number");
+	}
+
+	return Math.round(numeric * 100);
+}
 
 export const Route = createFileRoute("/admin/")({
 	beforeLoad: () => {
@@ -48,6 +69,98 @@ function AdminManagementPage() {
 
 	const categoriesQuery = useMenuCategories();
 	const itemsQuery = useMenuItems(selectedCategoryId);
+
+	const selectedCategoryNumber = useMemo(() => {
+		if (!selectedCategoryId) return null;
+		const n = Number(selectedCategoryId);
+		return Number.isFinite(n) ? n : null;
+	}, [selectedCategoryId]);
+
+	const [newCategoryName, setNewCategoryName] = useState("");
+	const [newCategoryDescription, setNewCategoryDescription] = useState("");
+
+	const createCategoryMutation = useMutation({
+		mutationFn: async () => {
+			const name = newCategoryName.trim();
+			const description = newCategoryDescription.trim();
+			if (!name) {
+				throw new Error("Category name is required");
+			}
+			return menuService.createMenuCategory({
+				name,
+				description: description ? description : undefined,
+			});
+		},
+		onSuccess: async (res) => {
+			setNewCategoryName("");
+			setNewCategoryDescription("");
+			if (res.data) {
+				setSelectedCategoryId(String(res.data.id));
+			}
+			await queryClient.invalidateQueries({ queryKey: ["menu", "categories"] });
+		},
+	});
+
+	const deleteSelectedCategoryMutation = useMutation({
+		mutationFn: async () => {
+			if (!selectedCategoryNumber) {
+				throw new Error("Select a category to delete");
+			}
+			return menuService.deleteMenuCategory(selectedCategoryNumber);
+		},
+		onSuccess: async () => {
+			setSelectedCategoryId(undefined);
+			await queryClient.invalidateQueries({ queryKey: ["menu", "categories"] });
+			await queryClient.invalidateQueries({ queryKey: ["menu", "items"] });
+		},
+	});
+
+	const [newItemName, setNewItemName] = useState("");
+	const [newItemDescription, setNewItemDescription] = useState("");
+	const [newItemPrice, setNewItemPrice] = useState("");
+	const [newItemImageUrl, setNewItemImageUrl] = useState("");
+
+	const createItemMutation = useMutation({
+		mutationFn: async () => {
+			if (!selectedCategoryNumber) {
+				throw new Error("Select a category first");
+			}
+
+			const name = newItemName.trim();
+			const description = newItemDescription.trim();
+			const imageUrl = newItemImageUrl.trim();
+			if (!name) {
+				throw new Error("Item name is required");
+			}
+
+			return menuService.createMenuItem({
+				category_id: selectedCategoryNumber,
+				name,
+				description: description ? description : undefined,
+				price: parsePriceToCents(newItemPrice),
+				image_url: imageUrl ? imageUrl : undefined,
+				is_available: true,
+			});
+		},
+		onSuccess: async () => {
+			setNewItemName("");
+			setNewItemDescription("");
+			setNewItemPrice("");
+			setNewItemImageUrl("");
+			await queryClient.invalidateQueries({
+				queryKey: ["menu", "items", selectedCategoryId],
+			});
+		},
+	});
+
+	const deleteItemMutation = useMutation({
+		mutationFn: async (id: number) => menuService.deleteMenuItem(id),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: ["menu", "items", selectedCategoryId],
+			});
+		},
+	});
 
 	const tablesQuery = useTables();
 	const [newTableNumber, setNewTableNumber] = useState("");
@@ -149,6 +262,35 @@ function AdminManagementPage() {
 						<div className="flex flex-col gap-4">
 							<div className="flex flex-col gap-2">
 								<p className="text-sm font-medium">Categories</p>
+								<div className="grid gap-2 rounded-md border p-3">
+									<Label htmlFor="new-category-name">New category</Label>
+									<div className="flex gap-2">
+										<Input
+											id="new-category-name"
+											value={newCategoryName}
+											onChange={(e) => setNewCategoryName(e.target.value)}
+											placeholder="e.g. Starters"
+										/>
+										<Button
+											disabled={createCategoryMutation.isPending}
+											onClick={() => createCategoryMutation.mutate()}
+										>
+											{createCategoryMutation.isPending ? "Adding…" : "Add"}
+										</Button>
+									</div>
+									<Input
+										value={newCategoryDescription}
+										onChange={(e) => setNewCategoryDescription(e.target.value)}
+										placeholder="Description (optional)"
+									/>
+									{createCategoryMutation.isError && (
+										<p className="text-destructive text-sm">
+											{createCategoryMutation.error instanceof Error
+												? createCategoryMutation.error.message
+												: "Failed to create category"}
+										</p>
+									)}
+								</div>
 								{categoriesQuery.isLoading && (
 									<p className="text-muted-foreground text-sm">Loading…</p>
 								)}
@@ -177,14 +319,91 @@ function AdminManagementPage() {
 										))}
 									</div>
 								)}
+								{selectedCategoryId && (
+									<div className="flex flex-wrap items-center gap-2">
+										<Button
+											variant="outline"
+											onClick={() => setSelectedCategoryId(undefined)}
+										>
+											Clear selection
+										</Button>
+										<Button
+											variant="destructive"
+											disabled={deleteSelectedCategoryMutation.isPending}
+											onClick={() => {
+												if (!selectedCategoryNumber) return;
+												const ok = window.confirm(
+													"Delete the selected category? This does not delete items automatically.",
+												);
+												if (!ok) return;
+												deleteSelectedCategoryMutation.mutate();
+											}}
+										>
+											{deleteSelectedCategoryMutation.isPending
+												? "Deleting…"
+												: "Delete selected"}
+										</Button>
+									</div>
+								)}
+								{deleteSelectedCategoryMutation.isError && (
+									<p className="text-destructive text-sm">
+										{deleteSelectedCategoryMutation.error instanceof Error
+											? deleteSelectedCategoryMutation.error.message
+											: "Failed to delete category"}
+									</p>
+								)}
 							</div>
 
 							<div className="flex flex-col gap-2">
 								<p className="text-sm font-medium">Items</p>
 								{!selectedCategoryId && (
 									<p className="text-muted-foreground text-sm">
-										Select a category to view items.
+										Select a category to view and create items.
 									</p>
+								)}
+								{selectedCategoryId && (
+									<div className="grid gap-2 rounded-md border p-3">
+										<Label htmlFor="new-item-name">New item</Label>
+										<Input
+											id="new-item-name"
+											value={newItemName}
+											onChange={(e) => setNewItemName(e.target.value)}
+											placeholder="e.g. Fries"
+										/>
+										<Input
+											value={newItemDescription}
+											onChange={(e) => setNewItemDescription(e.target.value)}
+											placeholder="Description (optional)"
+										/>
+										<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+											<Input
+												type="number"
+												inputMode="decimal"
+												step="0.01"
+												value={newItemPrice}
+												onChange={(e) => setNewItemPrice(e.target.value)}
+												placeholder="Price (e.g. 9.99)"
+											/>
+											<Input
+												value={newItemImageUrl}
+												onChange={(e) => setNewItemImageUrl(e.target.value)}
+												placeholder="Image URL (optional)"
+											/>
+										</div>
+										<Button
+											disabled={createItemMutation.isPending}
+											onClick={() => createItemMutation.mutate()}
+										>
+											{createItemMutation.isPending ? "Adding…" : "Add item"}
+										</Button>
+										{createItemMutation.isError && (
+											<p className="text-destructive text-sm">
+												{createItemMutation.error instanceof Error
+													? createItemMutation.error.message
+													: "Failed to create item"}
+											</p>
+										)}
+									</div>
 								)}
 								{itemsQuery.isLoading && selectedCategoryId && (
 									<p className="text-muted-foreground text-sm">Loading…</p>
@@ -195,19 +414,43 @@ function AdminManagementPage() {
 									</p>
 								)}
 								{itemsQuery.data && (
-									<ul className="space-y-1">
+									<ul className="space-y-2">
 										{itemsQuery.data.data.map((item) => (
 											<li
 												key={item.id}
-												className="flex items-center justify-between gap-4"
+												className="flex items-start justify-between gap-4 rounded-md border p-3"
 											>
-												<span className="text-sm">{item.name}</span>
-												<span className="text-muted-foreground text-sm">
-													{item.price}
-												</span>
+												<div className="min-w-0">
+													<p className="truncate text-sm font-medium">{item.name}</p>
+													<p className="text-muted-foreground text-xs">
+														{formatCents(item.price)}
+														{item.is_available ? "" : " • Unavailable"}
+													</p>
+												</div>
+												<Button
+													variant="destructive"
+													size="sm"
+													disabled={deleteItemMutation.isPending}
+													onClick={() => {
+													const ok = window.confirm(
+														`Delete item "${item.name}"?`,
+													);
+													if (!ok) return;
+													deleteItemMutation.mutate(item.id);
+												}}
+												>
+													Delete
+												</Button>
 											</li>
 										))}
 									</ul>
+								)}
+								{deleteItemMutation.isError && (
+									<p className="text-destructive text-sm">
+										{deleteItemMutation.error instanceof Error
+											? deleteItemMutation.error.message
+											: "Failed to delete item"}
+									</p>
 								)}
 							</div>
 						</div>
@@ -215,10 +458,15 @@ function AdminManagementPage() {
 					<CardFooter>
 						<Button
 							variant="outline"
-							onClick={() => setSelectedCategoryId(undefined)}
-							disabled={!selectedCategoryId}
+							onClick={() => {
+								void categoriesQuery.refetch();
+								if (selectedCategoryId) {
+									void itemsQuery.refetch();
+								}
+							}}
+							disabled={categoriesQuery.isFetching || itemsQuery.isFetching}
 						>
-							Clear selection
+							Refresh menu
 						</Button>
 					</CardFooter>
 				</Card>
