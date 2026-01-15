@@ -72,7 +72,11 @@ function KitchenPage() {
 			toast.success("Order status updated");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to update order status");
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to update order status",
+			);
 		},
 	});
 

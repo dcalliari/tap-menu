@@ -114,7 +114,9 @@ function AdminManagementPage() {
 			toast.success("Category created successfully");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to create category");
+			toast.error(
+				error instanceof Error ? error.message : "Failed to create category",
+			);
 		},
 	});
 
@@ -132,7 +134,9 @@ function AdminManagementPage() {
 			toast.success("Category deleted successfully");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to delete category");
+			toast.error(
+				error instanceof Error ? error.message : "Failed to delete category",
+			);
 		},
 	});
 
@@ -174,7 +178,9 @@ function AdminManagementPage() {
 			toast.success("Menu item created successfully");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to create menu item");
+			toast.error(
+				error instanceof Error ? error.message : "Failed to create menu item",
+			);
 		},
 	});
 
@@ -187,7 +193,9 @@ function AdminManagementPage() {
 			toast.success("Menu item deleted successfully");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to delete menu item");
+			toast.error(
+				error instanceof Error ? error.message : "Failed to delete menu item",
+			);
 		},
 	});
 
@@ -227,7 +235,9 @@ function AdminManagementPage() {
 			toast.success("Table created successfully");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to create table");
+			toast.error(
+				error instanceof Error ? error.message : "Failed to create table",
+			);
 		},
 	});
 
@@ -241,7 +251,9 @@ function AdminManagementPage() {
 			toast.success("Table deleted successfully");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to delete table");
+			toast.error(
+				error instanceof Error ? error.message : "Failed to delete table",
+			);
 		},
 	});
 
@@ -260,7 +272,11 @@ function AdminManagementPage() {
 			toast.success("Order status updated");
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to update order status");
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to update order status",
+			);
 		},
 	});
 
@@ -387,13 +403,17 @@ function AdminManagementPage() {
 												<AlertDialogHeader>
 													<AlertDialogTitle>Delete Category</AlertDialogTitle>
 													<AlertDialogDescription>
-														Are you sure you want to delete this category? This action cannot be undone. Items in this category will not be deleted automatically.
+														Are you sure you want to delete this category? This
+														action cannot be undone. Items in this category will
+														not be deleted automatically.
 													</AlertDialogDescription>
 												</AlertDialogHeader>
 												<AlertDialogFooter>
 													<AlertDialogCancel>Cancel</AlertDialogCancel>
 													<AlertDialogAction
-														onClick={() => deleteSelectedCategoryMutation.mutate()}
+														onClick={() =>
+															deleteSelectedCategoryMutation.mutate()
+														}
 														className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 													>
 														Delete
@@ -503,15 +523,20 @@ function AdminManagementPage() {
 													</AlertDialogTrigger>
 													<AlertDialogContent>
 														<AlertDialogHeader>
-															<AlertDialogTitle>Delete Menu Item</AlertDialogTitle>
+															<AlertDialogTitle>
+																Delete Menu Item
+															</AlertDialogTitle>
 															<AlertDialogDescription>
-																Are you sure you want to delete "{item.name}"? This action cannot be undone.
+																Are you sure you want to delete "{item.name}"?
+																This action cannot be undone.
 															</AlertDialogDescription>
 														</AlertDialogHeader>
 														<AlertDialogFooter>
 															<AlertDialogCancel>Cancel</AlertDialogCancel>
 															<AlertDialogAction
-																onClick={() => deleteItemMutation.mutate(item.id)}
+																onClick={() =>
+																	deleteItemMutation.mutate(item.id)
+																}
 																className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 															>
 																Delete
@@ -630,15 +655,20 @@ function AdminManagementPage() {
 														</AlertDialogTrigger>
 														<AlertDialogContent>
 															<AlertDialogHeader>
-																<AlertDialogTitle>Delete Table</AlertDialogTitle>
+																<AlertDialogTitle>
+																	Delete Table
+																</AlertDialogTitle>
 																<AlertDialogDescription>
-																	Are you sure you want to delete Table {table.number}? This action cannot be undone.
+																	Are you sure you want to delete Table{" "}
+																	{table.number}? This action cannot be undone.
 																</AlertDialogDescription>
 															</AlertDialogHeader>
 															<AlertDialogFooter>
 																<AlertDialogCancel>Cancel</AlertDialogCancel>
 																<AlertDialogAction
-																	onClick={() => deleteTableMutation.mutate(table.id)}
+																	onClick={() =>
+																		deleteTableMutation.mutate(table.id)
+																	}
 																	className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 																>
 																	Delete

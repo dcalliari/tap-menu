@@ -100,7 +100,9 @@ function TableMenuPage() {
 			});
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : "Failed to place order");
+			toast.error(
+				error instanceof Error ? error.message : "Failed to place order",
+			);
 		},
 	});
 
