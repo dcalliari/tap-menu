@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,10 @@ function KitchenPage() {
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["orders", "list"] });
 			await queryClient.invalidateQueries({ queryKey: ["orders", "byId"] });
+			toast.success("Order status updated");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to update order status");
 		},
 	});
 

@@ -6,6 +6,7 @@ import {
 	useNavigate,
 } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,10 @@ function AdminManagementPage() {
 				setSelectedCategoryId(String(res.data.id));
 			}
 			await queryClient.invalidateQueries({ queryKey: ["menu", "categories"] });
+			toast.success("Category created successfully");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to create category");
 		},
 	});
 
@@ -112,6 +117,10 @@ function AdminManagementPage() {
 			setSelectedCategoryId(undefined);
 			await queryClient.invalidateQueries({ queryKey: ["menu", "categories"] });
 			await queryClient.invalidateQueries({ queryKey: ["menu", "items"] });
+			toast.success("Category deleted successfully");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to delete category");
 		},
 	});
 
@@ -150,6 +159,10 @@ function AdminManagementPage() {
 			await queryClient.invalidateQueries({
 				queryKey: ["menu", "items", selectedCategoryId],
 			});
+			toast.success("Menu item created successfully");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to create menu item");
 		},
 	});
 
@@ -159,6 +172,10 @@ function AdminManagementPage() {
 			await queryClient.invalidateQueries({
 				queryKey: ["menu", "items", selectedCategoryId],
 			});
+			toast.success("Menu item deleted successfully");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to delete menu item");
 		},
 	});
 
@@ -195,6 +212,10 @@ function AdminManagementPage() {
 		onSuccess: async () => {
 			setNewTableNumber("");
 			await queryClient.invalidateQueries({ queryKey: ["tables", "list"] });
+			toast.success("Table created successfully");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to create table");
 		},
 	});
 
@@ -205,6 +226,10 @@ function AdminManagementPage() {
 				setSelectedTableId(null);
 			}
 			await queryClient.invalidateQueries({ queryKey: ["tables", "list"] });
+			toast.success("Table deleted successfully");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to delete table");
 		},
 	});
 
@@ -220,6 +245,10 @@ function AdminManagementPage() {
 			ordersService.updateOrderStatus(input.id, input.status),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["orders", "list"] });
+			toast.success("Order status updated");
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to update order status");
 		},
 	});
 

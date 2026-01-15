@@ -6,6 +6,7 @@ import {
 	useMemo,
 	useState,
 } from "react";
+import { toast } from "sonner";
 
 import { clearAuthToken, getAuthToken, setAuthToken } from "@/lib/auth-token";
 import {
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		clearAuthUser();
 		setToken(null);
 		setUser(null);
+		toast.success("Logged out successfully");
 	}, []);
 
 	const login = useCallback(
@@ -58,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			setAuthUser(res.user);
 			setToken(res.token);
 			setUser(res.user);
+			toast.success("Logged in successfully");
 		},
 		[],
 	);
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			setAuthToken(res.token);
 			setToken(res.token);
 			setUser(null);
+			toast.success("Account created successfully");
 		},
 		[],
 	);

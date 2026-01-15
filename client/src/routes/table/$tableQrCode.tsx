@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
@@ -90,11 +91,15 @@ function TableMenuPage() {
 		},
 		onSuccess: async (res) => {
 			setCart({});
+			toast.success("Order placed successfully!");
 			const orderQr = res.data.order.qr_code;
 			await navigate({
 				to: "/order/$orderQrCode",
 				params: { orderQrCode: orderQr },
 			});
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : "Failed to place order");
 		},
 	});
 
