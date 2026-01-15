@@ -38,6 +38,7 @@ export type OrderStatus =
 
 export async function createOrder(input: {
 	table_qr_code: string;
+	comanda_qr_code?: string;
 	items: { menu_item_id: number; quantity: number; notes?: string }[];
 }) {
 	const res = await apiClient.orders.$post({ json: input });
