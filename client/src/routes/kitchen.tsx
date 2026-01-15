@@ -1,19 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { CheckCircle, ChefHat, Clock, RefreshCw, Settings } from "lucide-react";
 import { useMemo, useRef } from "react";
 import { toast } from "sonner";
-import { Clock, ChefHat, CheckCircle, RefreshCw, Settings } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import {
 	KitchenOrderCard,
 	KitchenOrderCardSkeleton,
 } from "@/components/kitchen/KitchenOrderCard";
+import { Button } from "@/components/ui/button";
 import { useAllMenuItems } from "@/hooks/useMenu";
 import { getAuthToken } from "@/lib/auth-token";
+import { cn } from "@/lib/utils";
 import { ordersService } from "@/services";
 import type { OrderStatus } from "@/services/orders.service";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/kitchen")({
 	beforeLoad: () => {

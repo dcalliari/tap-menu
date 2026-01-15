@@ -1,5 +1,5 @@
+import { ArrowRight, CheckCircle, ChefHat, Clock, X } from "lucide-react";
 import { useMemo } from "react";
-import { Clock, ChefHat, CheckCircle, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/services/orders.service";
