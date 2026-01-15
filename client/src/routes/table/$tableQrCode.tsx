@@ -125,28 +125,49 @@ function TableMenuPage() {
 					</Card>
 				) : (
 					<div className="flex h-full flex-col">
-						<div className="flex items-start justify-between gap-3 border-b p-4">
-							<div className="min-w-0">
-								<p className="text-sm font-medium">Cart</p>
-								<p className="text-muted-foreground text-xs">{cartSummary}</p>
+						<div className="border-b p-4">
+							<div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-muted" />
+							<div className="flex items-start justify-between gap-3">
+								<div className="min-w-0">
+									<p className="text-sm font-medium">Cart</p>
+									<p className="text-muted-foreground text-xs">{cartSummary}</p>
+								</div>
+								<div className="flex shrink-0 items-center gap-3">
+									<div className="text-right">
+										<p className="text-sm font-semibold">
+											{formatCents(cartTotal)}
+										</p>
+										<p className="text-muted-foreground text-xs">
+											{cartCount} item{cartCount === 1 ? "" : "s"}
+										</p>
+									</div>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setCartOpen(false)}
+									>
+										Close
+									</Button>
+								</div>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => setCartOpen(false)}
-							>
-								Close
-							</Button>
 						</div>
 						<div className="flex-1 overflow-auto p-4">{renderCartBody()}</div>
-						<div className="border-t p-4">{renderCartActions()}</div>
+						<div className="border-t p-4">
+							<div className="flex flex-col gap-2">
+								<Button variant="outline" onClick={() => setCartOpen(false)}>
+									Continue shopping
+								</Button>
+								{renderCartActions({ includeClearCart: false })}
+							</div>
+						</div>
 					</div>
 				)}
 			</>
 		);
 	}
 
-	function renderCartActions() {
+	function renderCartActions(options?: { includeClearCart?: boolean }) {
+		const includeClearCart = options?.includeClearCart ?? true;
 		const errorMessage =
 			createOrderMutation.isError &&
 			(createOrderMutation.error instanceof Error
@@ -172,13 +193,15 @@ function TableMenuPage() {
 				>
 					{createOrderMutation.isPending ? "Placing order…" : "Place order"}
 				</Button>
-				<Button
-					variant="outline"
-					disabled={cartLines.length === 0}
-					onClick={() => setCart({})}
-				>
-					Clear cart
-				</Button>
+				{includeClearCart && (
+					<Button
+						variant="outline"
+						disabled={cartLines.length === 0}
+						onClick={() => setCart({})}
+					>
+						Clear cart
+					</Button>
+				)}
 			</div>
 		);
 	}
