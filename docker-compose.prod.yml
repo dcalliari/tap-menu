@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tap-menu-postgres
+    environment:
+      POSTGRES_DB: tap_menu_db
+      POSTGRES_USER: tap_menu_user
+      POSTGRES_PASSWORD: tap_menu_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tap_menu_user -d tap_menu_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tap-menu-network
+
+  redis:
+    image: redis:7
+    container_name: tap-menu-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tap-menu-network
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    container_name: tap-menu-server
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://tap_menu_user:tap_menu_pass@postgres:5432/tap_menu_db
+      REDIS_URL: redis://redis:6379
+      FRONTEND_URL: http://localhost
+      JWT_SECRET: ${JWT_SECRET:-change_this_to_a_secure_secret_at_least_32_chars}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tap-menu-network
+    restart: unless-stopped
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: client
+    container_name: tap-menu-client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - tap-menu-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  tap-menu-network:
+    driver: bridge
