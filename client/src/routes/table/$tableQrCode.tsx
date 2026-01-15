@@ -361,48 +361,133 @@ function TableMenuPage() {
 									{itemsQuery.data.data.map((item) => {
 										const cartLine = cart[item.id];
 										const qty = cartLine?.quantity ?? 0;
+										const isAvailable = item.is_available !== false;
+
+										const addOne = () => {
+											if (!isAvailable) return;
+											setCart((prev) => {
+												const existing = prev[item.id];
+												const nextQty = (existing?.quantity ?? 0) + 1;
+												return {
+													...prev,
+													[item.id]: {
+														menuItemId: item.id,
+														name: item.name,
+														price: item.price,
+														quantity: nextQty,
+													},
+												};
+											});
+										};
+
+										const removeOne = () => {
+											setCart((prev) => {
+												const existing = prev[item.id];
+												if (!existing) return prev;
+												const nextQty = existing.quantity - 1;
+												if (nextQty <= 0) {
+													const { [item.id]: _removed, ...rest } = prev;
+													return rest;
+												}
+												return {
+													...prev,
+													[item.id]: {
+														...existing,
+														quantity: nextQty,
+													},
+												};
+											});
+										};
+
 										return (
-											<div key={item.id} className="rounded-md border p-3">
-												<div className="flex items-start justify-between gap-3">
+											<div
+												key={item.id}
+												className={cn(
+													"group overflow-hidden rounded-lg border bg-card transition",
+													isAvailable
+														? "hover:border-foreground/20 hover:shadow-sm"
+														: "opacity-70",
+												)}
+												aria-disabled={!isAvailable}
+											>
+												<div className="relative">
+													<div className="aspect-16/10 w-full bg-muted">
+														{item.image_url ? (
+															<img
+																src={item.image_url}
+																alt={item.name}
+																loading="lazy"
+																className="h-full w-full object-cover"
+															/>
+														) : (
+															<div className="flex h-full w-full items-center justify-center bg-linear-to-br from-muted to-muted-foreground/10">
+																<span className="text-muted-foreground text-sm">
+																	No image
+																</span>
+															</div>
+														)}
+													</div>
+													{!isAvailable && (
+														<div className="absolute left-3 top-3 rounded-full bg-background/90 px-2 py-1 text-xs font-medium shadow">
+															Unavailable
+														</div>
+													)}
+												</div>
+
+												<div className="flex flex-col gap-3 p-4">
 													<div className="min-w-0">
-														<p className="truncate text-sm font-medium">
-															{item.name}
-														</p>
+														<div className="flex items-start justify-between gap-3">
+															<p className="min-w-0 truncate text-sm font-medium">
+																{item.name}
+															</p>
+															<p className="shrink-0 text-sm font-semibold">
+																{formatCents(item.price)}
+															</p>
+														</div>
 														{item.description && (
-															<p className="text-muted-foreground mt-1 text-xs">
+															<p className="text-muted-foreground mt-1 line-clamp-2 text-xs">
 																{item.description}
 															</p>
 														)}
 													</div>
-													<div className="flex shrink-0 flex-col items-end gap-2">
-														<p className="text-sm font-medium">
-															{formatCents(item.price)}
-														</p>
-														<Button
-															size="sm"
-															disabled={!item.is_available}
-															onClick={() => {
-																setCart((prev) => {
-																	const existing = prev[item.id];
-																	const nextQty = (existing?.quantity ?? 0) + 1;
-																	return {
-																		...prev,
-																		[item.id]: {
-																			menuItemId: item.id,
-																			name: item.name,
-																			price: item.price,
-																			quantity: nextQty,
-																		},
-																	};
-																});
-															}}
-														>
-															{item.is_available
-																? qty > 0
-																	? `Add (+${qty})`
-																	: "Add"
-																: "Unavailable"}
-														</Button>
+
+													<div className="flex items-center justify-between gap-2">
+														{qty === 0 ? (
+															<Button
+																size="sm"
+																disabled={!isAvailable}
+																onClick={addOne}
+															>
+																Add to cart
+															</Button>
+														) : (
+															<div className="flex items-center gap-2">
+																<Button
+																	variant="outline"
+																	size="sm"
+																	onClick={removeOne}
+																>
+																	-
+																</Button>
+																<p className="w-6 text-center text-sm font-medium">
+																	{qty}
+																</p>
+																<Button
+																	variant="outline"
+																	size="sm"
+																	onClick={addOne}
+																	disabled={!isAvailable}
+																>
+																	+
+																</Button>
+															</div>
+														)}
+
+														{qty > 0 && (
+															<span className="text-muted-foreground text-xs">
+																In cart
+															</span>
+														)}
 													</div>
 												</div>
 											</div>
