@@ -1,11 +1,5 @@
 import { useMemo } from "react";
-import {
-	Clock,
-	ChefHat,
-	CheckCircle,
-	ArrowRight,
-	X,
-} from "lucide-react";
+import { Clock, ChefHat, CheckCircle, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/services/orders.service";
@@ -177,7 +171,9 @@ export function KitchenOrderCard({
 					<Button
 						size="sm"
 						className="flex-1 gap-1"
-						onClick={() => onAdvanceStatus(order.id, config.nextStatus as OrderStatus)}
+						onClick={() =>
+							onAdvanceStatus(order.id, config.nextStatus as OrderStatus)
+						}
 						disabled={isPending}
 					>
 						<ArrowRight className="h-4 w-4" />

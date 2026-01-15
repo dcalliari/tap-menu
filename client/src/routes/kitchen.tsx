@@ -189,9 +189,8 @@ function KitchenPage() {
 					{COLUMNS.map((column) => {
 						const Icon = column.icon;
 						const orders =
-							ordersByStatus[
-								column.status as keyof typeof ordersByStatus
-							] ?? [];
+							ordersByStatus[column.status as keyof typeof ordersByStatus] ??
+							[];
 
 						return (
 							<div key={column.status} className="flex flex-col">
@@ -258,8 +257,7 @@ function KitchenPage() {
 						{ordersQuery.isFetching && " • Updating..."}
 					</span>
 					<span>
-						Last updated:{" "}
-						{new Date(lastUpdateRef.current).toLocaleTimeString()}
+						Last updated: {new Date(lastUpdateRef.current).toLocaleTimeString()}
 					</span>
 				</div>
 			</footer>
