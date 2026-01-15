@@ -352,7 +352,12 @@ function TableMenuPage() {
 								</p>
 							)}
 							{categoriesQuery.data && (
-								<div className="flex flex-wrap gap-2">
+								<div
+									className={cn(
+										"-mx-1 flex gap-2 overflow-x-auto px-1 pb-1",
+										"[scrollbar-width:none] [-ms-overflow-style:none]",
+									)}
+								>
 									{categoriesQuery.data.data.map((category) => (
 										<Button
 											key={category.id}
@@ -362,7 +367,18 @@ function TableMenuPage() {
 													? "default"
 													: "outline"
 											}
+											className={cn(
+												"shrink-0 rounded-full",
+												selectedCategoryId === String(category.id)
+													? "shadow-sm"
+													: "bg-background",
+											)}
 											onClick={() => setSelectedCategoryId(String(category.id))}
+											aria-current={
+												selectedCategoryId === String(category.id)
+													? "true"
+													: undefined
+											}
 										>
 											{category.name}
 										</Button>
