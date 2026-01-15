@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
+import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -110,443 +111,430 @@ function AdminManagementPage() {
 	});
 
 	return (
-		<div className="min-h-screen">
-			<div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
-				<header className="flex items-start justify-between gap-4">
-					<div className="flex flex-col gap-1">
-						<h1 className="text-2xl font-semibold tracking-tight">
-							Administration
-						</h1>
-						<p className="text-muted-foreground text-sm">
-							Manage menus, tables, and orders.
+		<AppShell
+			title="Administration"
+			description="Manage menus, tables, and orders."
+			maxWidth="5xl"
+			actions={
+				<>
+					{auth.state.user?.email && (
+						<p className="text-muted-foreground hidden text-sm sm:block">
+							{auth.state.user.email}
 						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						{auth.state.user?.email && (
-							<p className="text-muted-foreground hidden text-sm sm:block">
-								{auth.state.user.email}
-							</p>
-						)}
-						<Button variant="outline" asChild>
-							<Link to="/">Back to home</Link>
-						</Button>
-						<Button
-							variant="destructive"
-							onClick={() => {
-								auth.logout();
-								void navigate({ to: "/login" });
-							}}
-						>
-							Logout
-						</Button>
-					</div>
-				</header>
-
-				<section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-					<Card>
-						<CardHeader>
-							<CardTitle>Menu</CardTitle>
-							<CardDescription>
-								Create and update categories and items.
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="flex flex-col gap-4">
-								<div className="flex flex-col gap-2">
-									<p className="text-sm font-medium">Categories</p>
-									{categoriesQuery.isLoading && (
-										<p className="text-muted-foreground text-sm">Loading…</p>
-									)}
-									{categoriesQuery.isError && (
-										<p className="text-destructive text-sm">
-											Failed to load categories.
-										</p>
-									)}
-									{categoriesQuery.data && (
-										<div className="flex flex-wrap gap-2">
-											{categoriesQuery.data.data.map((category) => (
-												<Button
-													key={category.id}
-													variant={
-														selectedCategoryId === String(category.id)
-															? "default"
-															: "outline"
-													}
-													size="sm"
-													onClick={() =>
-														setSelectedCategoryId(String(category.id))
-													}
-												>
-													{category.name}
-												</Button>
-											))}
-										</div>
-									)}
-								</div>
-
-								<div className="flex flex-col gap-2">
-									<p className="text-sm font-medium">Items</p>
-									{!selectedCategoryId && (
-										<p className="text-muted-foreground text-sm">
-											Select a category to view items.
-										</p>
-									)}
-									{itemsQuery.isLoading && selectedCategoryId && (
-										<p className="text-muted-foreground text-sm">Loading…</p>
-									)}
-									{itemsQuery.isError && selectedCategoryId && (
-										<p className="text-destructive text-sm">
-											Failed to load items.
-										</p>
-									)}
-									{itemsQuery.data && (
-										<ul className="space-y-1">
-											{itemsQuery.data.data.map((item) => (
-												<li
-													key={item.id}
-													className="flex items-center justify-between gap-4"
-												>
-													<span className="text-sm">{item.name}</span>
-													<span className="text-muted-foreground text-sm">
-														{item.price}
-													</span>
-												</li>
-											))}
-										</ul>
-									)}
-								</div>
-							</div>
-						</CardContent>
-						<CardFooter>
-							<Button
-								variant="outline"
-								onClick={() => setSelectedCategoryId(undefined)}
-								disabled={!selectedCategoryId}
-							>
-								Clear selection
-							</Button>
-						</CardFooter>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>Tables</CardTitle>
-							<CardDescription>
-								Create tables and print QR codes.
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="flex flex-col gap-4">
-								<div className="grid gap-2">
-									<Label htmlFor="new-table-number">Table number</Label>
-									<div className="flex gap-2">
-										<Input
-											id="new-table-number"
-											inputMode="numeric"
-											value={newTableNumber}
-											onChange={(e) => setNewTableNumber(e.target.value)}
-											placeholder="e.g. 1"
-										/>
-										<Button
-											disabled={createTableMutation.isPending}
-											onClick={() => createTableMutation.mutate()}
-										>
-											{createTableMutation.isPending ? "Creating…" : "Create"}
-										</Button>
-									</div>
-									{createTableMutation.isError && (
-										<p className="text-destructive text-sm">
-											{createTableMutation.error instanceof Error
-												? createTableMutation.error.message
-												: "Failed to create table"}
-										</p>
-									)}
-								</div>
-
-								<div className="flex flex-col gap-2">
-									<p className="text-sm font-medium">Existing tables</p>
-									{tablesQuery.isLoading && (
-										<p className="text-muted-foreground text-sm">Loading…</p>
-									)}
-									{tablesQuery.isError && (
-										<p className="text-destructive text-sm">
-											Failed to load tables.
-										</p>
-									)}
-									{tablesQuery.data?.success && (
-										<ul className="space-y-2">
-											{tablesQuery.data.data.map((table) => (
-												<li
-													key={table.id}
-													className="flex items-center justify-between gap-2"
-												>
-													<div className="flex min-w-0 flex-col">
-														<p className="text-sm font-medium">
-															Table {table.number}
-														</p>
-														<p className="text-muted-foreground text-xs">
-															ID: {table.id}
-														</p>
-													</div>
-													<div className="flex items-center gap-2">
-														<Button
-															variant="outline"
-															size="sm"
-															onClick={() => setSelectedTableId(table.id)}
-														>
-															QR
-														</Button>
-														<Button
-															variant="destructive"
-															size="sm"
-															disabled={deleteTableMutation.isPending}
-															onClick={() =>
-																deleteTableMutation.mutate(table.id)
-															}
-														>
-															Delete
-														</Button>
-													</div>
-												</li>
-											))}
-										</ul>
-									)}
-									{deleteTableMutation.isError && (
-										<p className="text-destructive text-sm">
-											{deleteTableMutation.error instanceof Error
-												? deleteTableMutation.error.message
-												: "Failed to delete table"}
-										</p>
-									)}
-								</div>
-
-								{selectedTableId !== null && (
-									<div className="rounded-md border p-3">
-										<div className="flex items-center justify-between gap-2">
-											<p className="text-sm font-medium">QR preview</p>
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => setSelectedTableId(null)}
-											>
-												Close
-											</Button>
-										</div>
-										{tableQrQuery.isLoading && (
-											<p className="text-muted-foreground mt-2 text-sm">
-												Loading…
-											</p>
-										)}
-										{tableQrQuery.isError && (
-											<p className="text-destructive mt-2 text-sm">
-												Failed to load QR code.
-											</p>
-										)}
-										{tableQrObjectUrl && (
-											<img
-												src={tableQrObjectUrl}
-												alt={`Table ${selectedTableId} QR`}
-												className="mt-2 w-full max-w-56"
-											/>
-										)}
-									</div>
-								)}
-							</div>
-						</CardContent>
-						<CardFooter>
-							<Button
-								variant="outline"
-								onClick={() => tablesQuery.refetch()}
-								disabled={tablesQuery.isFetching}
-							>
-								Refresh
-							</Button>
-						</CardFooter>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>Orders</CardTitle>
-							<CardDescription>Track and update order status.</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="flex flex-col gap-4">
-								<div className="flex flex-wrap items-center gap-2">
-									<Button
-										variant={
-											ordersStatusFilter === "open" ? "default" : "outline"
-										}
-										size="sm"
-										onClick={() => setOrdersStatusFilter("open")}
-									>
-										Open
-									</Button>
-									<Button
-										variant={
-											ordersStatusFilter === "preparing" ? "default" : "outline"
-										}
-										size="sm"
-										onClick={() => setOrdersStatusFilter("preparing")}
-									>
-										Preparing
-									</Button>
-									<Button
-										variant={
-											ordersStatusFilter === "ready" ? "default" : "outline"
-										}
-										size="sm"
-										onClick={() => setOrdersStatusFilter("ready")}
-									>
-										Ready
-									</Button>
-									<Button
-										variant={
-											ordersStatusFilter === "closed" ? "default" : "outline"
-										}
-										size="sm"
-										onClick={() => setOrdersStatusFilter("closed")}
-									>
-										Closed
-									</Button>
-									<Button
-										variant={
-											ordersStatusFilter === "cancelled" ? "default" : "outline"
-										}
-										size="sm"
-										onClick={() => setOrdersStatusFilter("cancelled")}
-									>
-										Cancelled
-									</Button>
-									<Button
-										variant={
-											ordersStatusFilter === "all" ? "default" : "outline"
-										}
-										size="sm"
-										onClick={() => setOrdersStatusFilter("all")}
-									>
-										All
-									</Button>
-								</div>
-
-								{ordersQuery.isLoading && (
+					)}
+					<Button variant="outline" asChild>
+						<Link to="/kitchen">Kitchen</Link>
+					</Button>
+					<Button
+						variant="destructive"
+						onClick={() => {
+							auth.logout();
+							void navigate({ to: "/login" });
+						}}
+					>
+						Logout
+					</Button>
+				</>
+			}
+		>
+			<section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<Card>
+					<CardHeader>
+						<CardTitle>Menu</CardTitle>
+						<CardDescription>
+							Create and update categories and items.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="flex flex-col gap-4">
+							<div className="flex flex-col gap-2">
+								<p className="text-sm font-medium">Categories</p>
+								{categoriesQuery.isLoading && (
 									<p className="text-muted-foreground text-sm">Loading…</p>
 								)}
-								{ordersQuery.isError && (
+								{categoriesQuery.isError && (
 									<p className="text-destructive text-sm">
-										Failed to load orders.
+										Failed to load categories.
 									</p>
 								)}
-								{ordersQuery.data && (
+								{categoriesQuery.data && (
+									<div className="flex flex-wrap gap-2">
+										{categoriesQuery.data.data.map((category) => (
+											<Button
+												key={category.id}
+												variant={
+													selectedCategoryId === String(category.id)
+														? "default"
+														: "outline"
+												}
+												size="sm"
+												onClick={() =>
+													setSelectedCategoryId(String(category.id))
+												}
+											>
+												{category.name}
+											</Button>
+										))}
+									</div>
+								)}
+							</div>
+
+							<div className="flex flex-col gap-2">
+								<p className="text-sm font-medium">Items</p>
+								{!selectedCategoryId && (
+									<p className="text-muted-foreground text-sm">
+										Select a category to view items.
+									</p>
+								)}
+								{itemsQuery.isLoading && selectedCategoryId && (
+									<p className="text-muted-foreground text-sm">Loading…</p>
+								)}
+								{itemsQuery.isError && selectedCategoryId && (
+									<p className="text-destructive text-sm">
+										Failed to load items.
+									</p>
+								)}
+								{itemsQuery.data && (
+									<ul className="space-y-1">
+										{itemsQuery.data.data.map((item) => (
+											<li
+												key={item.id}
+												className="flex items-center justify-between gap-4"
+											>
+												<span className="text-sm">{item.name}</span>
+												<span className="text-muted-foreground text-sm">
+													{item.price}
+												</span>
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+						</div>
+					</CardContent>
+					<CardFooter>
+						<Button
+							variant="outline"
+							onClick={() => setSelectedCategoryId(undefined)}
+							disabled={!selectedCategoryId}
+						>
+							Clear selection
+						</Button>
+					</CardFooter>
+				</Card>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Tables</CardTitle>
+						<CardDescription>Create tables and print QR codes.</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="flex flex-col gap-4">
+							<div className="grid gap-2">
+								<Label htmlFor="new-table-number">Table number</Label>
+								<div className="flex gap-2">
+									<Input
+										id="new-table-number"
+										inputMode="numeric"
+										value={newTableNumber}
+										onChange={(e) => setNewTableNumber(e.target.value)}
+										placeholder="e.g. 1"
+									/>
+									<Button
+										disabled={createTableMutation.isPending}
+										onClick={() => createTableMutation.mutate()}
+									>
+										{createTableMutation.isPending ? "Creating…" : "Create"}
+									</Button>
+								</div>
+								{createTableMutation.isError && (
+									<p className="text-destructive text-sm">
+										{createTableMutation.error instanceof Error
+											? createTableMutation.error.message
+											: "Failed to create table"}
+									</p>
+								)}
+							</div>
+
+							<div className="flex flex-col gap-2">
+								<p className="text-sm font-medium">Existing tables</p>
+								{tablesQuery.isLoading && (
+									<p className="text-muted-foreground text-sm">Loading…</p>
+								)}
+								{tablesQuery.isError && (
+									<p className="text-destructive text-sm">
+										Failed to load tables.
+									</p>
+								)}
+								{tablesQuery.data?.success && (
 									<ul className="space-y-2">
-										{ordersQuery.data.data.map((order) => (
-											<li key={order.id} className="rounded-md border p-3">
-												<div className="flex items-start justify-between gap-3">
-													<div className="min-w-0">
-														<p className="text-sm font-medium">
-															Order #{order.id} • Table {order.table_id}
-														</p>
-														<p className="text-muted-foreground text-xs">
-															Status: {order.status} • Total: {order.total}
-														</p>
-													</div>
-													<div className="flex flex-wrap justify-end gap-2">
-														<Button
-															variant="outline"
-															size="sm"
-															disabled={updateOrderStatusMutation.isPending}
-															onClick={() =>
-																updateOrderStatusMutation.mutate({
-																	id: order.id,
-																	status: "preparing",
-																})
-															}
-														>
-															Preparing
-														</Button>
-														<Button
-															variant="outline"
-															size="sm"
-															disabled={updateOrderStatusMutation.isPending}
-															onClick={() =>
-																updateOrderStatusMutation.mutate({
-																	id: order.id,
-																	status: "ready",
-																})
-															}
-														>
-															Ready
-														</Button>
-														<Button
-															variant="outline"
-															size="sm"
-															disabled={updateOrderStatusMutation.isPending}
-															onClick={() =>
-																updateOrderStatusMutation.mutate({
-																	id: order.id,
-																	status: "closed",
-																})
-															}
-														>
-															Close
-														</Button>
-														<Button
-															variant="destructive"
-															size="sm"
-															disabled={updateOrderStatusMutation.isPending}
-															onClick={() =>
-																updateOrderStatusMutation.mutate({
-																	id: order.id,
-																	status: "cancelled",
-																})
-															}
-														>
-															Cancel
-														</Button>
-													</div>
+										{tablesQuery.data.data.map((table) => (
+											<li
+												key={table.id}
+												className="flex items-center justify-between gap-2"
+											>
+												<div className="flex min-w-0 flex-col">
+													<p className="text-sm font-medium">
+														Table {table.number}
+													</p>
+													<p className="text-muted-foreground text-xs">
+														ID: {table.id}
+													</p>
+												</div>
+												<div className="flex items-center gap-2">
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={() => setSelectedTableId(table.id)}
+													>
+														QR
+													</Button>
+													<Button
+														variant="destructive"
+														size="sm"
+														disabled={deleteTableMutation.isPending}
+														onClick={() => deleteTableMutation.mutate(table.id)}
+													>
+														Delete
+													</Button>
 												</div>
 											</li>
 										))}
 									</ul>
 								)}
-
-								{updateOrderStatusMutation.isError && (
+								{deleteTableMutation.isError && (
 									<p className="text-destructive text-sm">
-										{updateOrderStatusMutation.error instanceof Error
-											? updateOrderStatusMutation.error.message
-											: "Failed to update order status"}
+										{deleteTableMutation.error instanceof Error
+											? deleteTableMutation.error.message
+											: "Failed to delete table"}
 									</p>
 								)}
 							</div>
-						</CardContent>
-						<CardFooter>
-							<Button
-								variant="outline"
-								onClick={() => ordersQuery.refetch()}
-								disabled={ordersQuery.isFetching}
-							>
-								Refresh
-							</Button>
-						</CardFooter>
-					</Card>
 
-					<Card>
-						<CardHeader>
-							<CardTitle>QR Scanner</CardTitle>
-							<CardDescription>
-								Test QR flows for tables and orders.
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<p className="text-muted-foreground text-sm">
-								Coming next: route wiring for scanned QR codes.
-							</p>
-						</CardContent>
-						<CardFooter>
-							<Button disabled>Open QR Tools</Button>
-						</CardFooter>
-					</Card>
-				</section>
-			</div>
-		</div>
+							{selectedTableId !== null && (
+								<div className="rounded-md border p-3">
+									<div className="flex items-center justify-between gap-2">
+										<p className="text-sm font-medium">QR preview</p>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => setSelectedTableId(null)}
+										>
+											Close
+										</Button>
+									</div>
+									{tableQrQuery.isLoading && (
+										<p className="text-muted-foreground mt-2 text-sm">
+											Loading…
+										</p>
+									)}
+									{tableQrQuery.isError && (
+										<p className="text-destructive mt-2 text-sm">
+											Failed to load QR code.
+										</p>
+									)}
+									{tableQrObjectUrl && (
+										<img
+											src={tableQrObjectUrl}
+											alt={`Table ${selectedTableId} QR`}
+											className="mt-2 w-full max-w-56"
+										/>
+									)}
+								</div>
+							)}
+						</div>
+					</CardContent>
+					<CardFooter>
+						<Button
+							variant="outline"
+							onClick={() => tablesQuery.refetch()}
+							disabled={tablesQuery.isFetching}
+						>
+							Refresh
+						</Button>
+					</CardFooter>
+				</Card>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Orders</CardTitle>
+						<CardDescription>Track and update order status.</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="flex flex-col gap-4">
+							<div className="flex flex-wrap items-center gap-2">
+								<Button
+									variant={
+										ordersStatusFilter === "open" ? "default" : "outline"
+									}
+									size="sm"
+									onClick={() => setOrdersStatusFilter("open")}
+								>
+									Open
+								</Button>
+								<Button
+									variant={
+										ordersStatusFilter === "preparing" ? "default" : "outline"
+									}
+									size="sm"
+									onClick={() => setOrdersStatusFilter("preparing")}
+								>
+									Preparing
+								</Button>
+								<Button
+									variant={
+										ordersStatusFilter === "ready" ? "default" : "outline"
+									}
+									size="sm"
+									onClick={() => setOrdersStatusFilter("ready")}
+								>
+									Ready
+								</Button>
+								<Button
+									variant={
+										ordersStatusFilter === "closed" ? "default" : "outline"
+									}
+									size="sm"
+									onClick={() => setOrdersStatusFilter("closed")}
+								>
+									Closed
+								</Button>
+								<Button
+									variant={
+										ordersStatusFilter === "cancelled" ? "default" : "outline"
+									}
+									size="sm"
+									onClick={() => setOrdersStatusFilter("cancelled")}
+								>
+									Cancelled
+								</Button>
+								<Button
+									variant={ordersStatusFilter === "all" ? "default" : "outline"}
+									size="sm"
+									onClick={() => setOrdersStatusFilter("all")}
+								>
+									All
+								</Button>
+							</div>
+
+							{ordersQuery.isLoading && (
+								<p className="text-muted-foreground text-sm">Loading…</p>
+							)}
+							{ordersQuery.isError && (
+								<p className="text-destructive text-sm">
+									Failed to load orders.
+								</p>
+							)}
+							{ordersQuery.data && (
+								<ul className="space-y-2">
+									{ordersQuery.data.data.map((order) => (
+										<li key={order.id} className="rounded-md border p-3">
+											<div className="flex items-start justify-between gap-3">
+												<div className="min-w-0">
+													<p className="text-sm font-medium">
+														Order #{order.id} • Table {order.table_id}
+													</p>
+													<p className="text-muted-foreground text-xs">
+														Status: {order.status} • Total: {order.total}
+													</p>
+												</div>
+												<div className="flex flex-wrap justify-end gap-2">
+													<Button
+														variant="outline"
+														size="sm"
+														disabled={updateOrderStatusMutation.isPending}
+														onClick={() =>
+															updateOrderStatusMutation.mutate({
+																id: order.id,
+																status: "preparing",
+															})
+														}
+													>
+														Preparing
+													</Button>
+													<Button
+														variant="outline"
+														size="sm"
+														disabled={updateOrderStatusMutation.isPending}
+														onClick={() =>
+															updateOrderStatusMutation.mutate({
+																id: order.id,
+																status: "ready",
+															})
+														}
+													>
+														Ready
+													</Button>
+													<Button
+														variant="outline"
+														size="sm"
+														disabled={updateOrderStatusMutation.isPending}
+														onClick={() =>
+															updateOrderStatusMutation.mutate({
+																id: order.id,
+																status: "closed",
+															})
+														}
+													>
+														Close
+													</Button>
+													<Button
+														variant="destructive"
+														size="sm"
+														disabled={updateOrderStatusMutation.isPending}
+														onClick={() =>
+															updateOrderStatusMutation.mutate({
+																id: order.id,
+																status: "cancelled",
+															})
+														}
+													>
+														Cancel
+													</Button>
+												</div>
+											</div>
+										</li>
+									))}
+								</ul>
+							)}
+
+							{updateOrderStatusMutation.isError && (
+								<p className="text-destructive text-sm">
+									{updateOrderStatusMutation.error instanceof Error
+										? updateOrderStatusMutation.error.message
+										: "Failed to update order status"}
+								</p>
+							)}
+						</div>
+					</CardContent>
+					<CardFooter>
+						<Button
+							variant="outline"
+							onClick={() => ordersQuery.refetch()}
+							disabled={ordersQuery.isFetching}
+						>
+							Refresh
+						</Button>
+					</CardFooter>
+				</Card>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>QR Scanner</CardTitle>
+						<CardDescription>
+							Test QR flows for tables and orders.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<p className="text-muted-foreground text-sm">
+							Coming next: route wiring for scanned QR codes.
+						</p>
+					</CardContent>
+					<CardFooter>
+						<Button disabled>Open QR Tools</Button>
+					</CardFooter>
+				</Card>
+			</section>
+		</AppShell>
 	);
 }

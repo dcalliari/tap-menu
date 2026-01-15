@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -75,108 +76,93 @@ function KitchenPage() {
 	);
 
 	return (
-		<div className="min-h-screen">
-			<div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
-				<header className="flex items-start justify-between gap-4">
-					<div className="flex flex-col gap-1">
-						<h1 className="text-2xl font-semibold tracking-tight">Kitchen</h1>
-						<p className="text-muted-foreground text-sm">
-							Live order queue (admin-only).
-						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						<Button variant="outline" asChild>
-							<Link to="/admin">Admin</Link>
-						</Button>
-						<Button variant="outline" asChild>
-							<Link to="/">Home</Link>
-						</Button>
-					</div>
-				</header>
-
-				<Card>
-					<CardHeader>
-						<CardTitle>Orders</CardTitle>
-						<CardDescription>
-							Filter and update statuses quickly.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="flex flex-col gap-4">
-							<div className="flex flex-wrap items-center gap-2">
-								{FILTERS.map((f) => (
-									<Button
-										key={f.key}
-										size="sm"
-										variant={statusFilter === f.key ? "default" : "outline"}
-										onClick={() => setStatusFilter(f.key)}
-									>
-										{f.label}
-									</Button>
-								))}
+		<AppShell
+			title="Kitchen"
+			description="Live order queue (admin-only)."
+			actions={
+				<Button variant="outline" asChild>
+					<Link to="/admin">Admin</Link>
+				</Button>
+			}
+		>
+			<Card>
+				<CardHeader>
+					<CardTitle>Orders</CardTitle>
+					<CardDescription>Filter and update statuses quickly.</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="flex flex-col gap-4">
+						<div className="flex flex-wrap items-center gap-2">
+							{FILTERS.map((f) => (
 								<Button
-									variant="outline"
-									onClick={() => ordersQuery.refetch()}
-									disabled={ordersQuery.isFetching}
+									key={f.key}
+									size="sm"
+									variant={statusFilter === f.key ? "default" : "outline"}
+									onClick={() => setStatusFilter(f.key)}
 								>
-									Refresh
+									{f.label}
 								</Button>
-							</div>
-
-							{ordersQuery.isLoading && (
-								<p className="text-muted-foreground text-sm">Loading…</p>
-							)}
-							{ordersQuery.isError && (
-								<p className="text-destructive text-sm">
-									Failed to load orders.
-								</p>
-							)}
-
-							{ordersQuery.data && visibleOrders.length === 0 && (
-								<p className="text-muted-foreground text-sm">
-									No orders for this filter.
-								</p>
-							)}
-
-							{ordersQuery.data && visibleOrders.length > 0 && (
-								<ul className="space-y-3">
-									{visibleOrders.map((order) => (
-										<li key={order.id} className="rounded-md border p-3">
-											<OrderRow
-												order={order}
-												expanded={Boolean(expanded[order.id])}
-												onToggle={() =>
-													setExpanded((prev) => ({
-														...prev,
-														[order.id]: !prev[order.id],
-													}))
-												}
-												formatCents={formatCents}
-												updateStatusMutation={updateStatusMutation}
-												menuItemNameById={menuItemNameById}
-											/>
-										</li>
-									))}
-								</ul>
-							)}
-
-							{updateStatusMutation.isError && (
-								<p className="text-destructive text-sm">
-									{updateStatusMutation.error instanceof Error
-										? updateStatusMutation.error.message
-										: "Failed to update order status"}
-								</p>
-							)}
+							))}
+							<Button
+								variant="outline"
+								onClick={() => ordersQuery.refetch()}
+								disabled={ordersQuery.isFetching}
+							>
+								Refresh
+							</Button>
 						</div>
-					</CardContent>
-					<CardFooter>
-						<p className="text-muted-foreground text-sm">
-							Tip: keep this open on a tablet.
-						</p>
-					</CardFooter>
-				</Card>
-			</div>
-		</div>
+
+						{ordersQuery.isLoading && (
+							<p className="text-muted-foreground text-sm">Loading…</p>
+						)}
+						{ordersQuery.isError && (
+							<p className="text-destructive text-sm">Failed to load orders.</p>
+						)}
+
+						{ordersQuery.data && visibleOrders.length === 0 && (
+							<p className="text-muted-foreground text-sm">
+								No orders for this filter.
+							</p>
+						)}
+
+						{ordersQuery.data && visibleOrders.length > 0 && (
+							<ul className="space-y-3">
+								{visibleOrders.map((order) => (
+									<li key={order.id} className="rounded-md border p-3">
+										<OrderRow
+											order={order}
+											expanded={Boolean(expanded[order.id])}
+											onToggle={() =>
+												setExpanded((prev) => ({
+													...prev,
+													[order.id]: !prev[order.id],
+												}))
+											}
+											formatCents={formatCents}
+											updateStatusMutation={updateStatusMutation}
+											menuItemNameById={menuItemNameById}
+										/>
+									</li>
+								))}
+							</ul>
+						)}
+
+						{updateStatusMutation.isError && (
+							<p className="text-destructive text-sm">
+								{updateStatusMutation.error instanceof Error
+									? updateStatusMutation.error.message
+									: "Failed to update order status"}
+							</p>
+						)}
+					</div>
+				</CardContent>
+				<CardFooter>
+					<p className="text-muted-foreground text-sm">
+						Tip: keep this open on a tablet.
+					</p>
+				</CardFooter>
+			</Card>
+		</AppShell>
 	);
 }
 
