@@ -41,6 +41,39 @@ function OrderStatusPage() {
 		refetchInterval: 5_000,
 	});
 
+	const order = orderQuery.data?.data.order;
+	const items = orderQuery.data?.data.items ?? [];
+	const statusMeta = useMemo(() => {
+		switch (order?.status) {
+			case "open":
+				return { label: "Open", className: "bg-blue-50 text-blue-700" };
+			case "preparing":
+				return { label: "Preparing", className: "bg-amber-50 text-amber-700" };
+			case "ready":
+				return { label: "Ready", className: "bg-green-50 text-green-700" };
+			case "closed":
+				return { label: "Closed", className: "bg-zinc-100 text-zinc-700" };
+			case "cancelled":
+				return { label: "Cancelled", className: "bg-red-50 text-red-700" };
+			default:
+				return order?.status
+					? {
+							label: String(order.status),
+							className: "bg-muted text-foreground",
+						}
+					: null;
+		}
+	}, [order?.status]);
+
+	const updatedAtLabel = useMemo(() => {
+		if (!orderQuery.dataUpdatedAt) return null;
+		return new Intl.DateTimeFormat(undefined, {
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+		}).format(new Date(orderQuery.dataUpdatedAt));
+	}, [orderQuery.dataUpdatedAt]);
+
 	return (
 		<AppShell
 			title="Order status"
@@ -51,21 +84,37 @@ function OrderStatusPage() {
 			}
 			maxWidth="2xl"
 			actions={
-				<Button variant="outline" asChild>
-					<Link to="/admin">Admin</Link>
-				</Button>
+				<div className="flex items-center gap-2">
+					<Button variant="outline" asChild>
+						<Link to="/">Home</Link>
+					</Button>
+					<Button variant="outline" asChild>
+						<Link to="/admin">Admin</Link>
+					</Button>
+				</div>
 			}
 		>
 			<Card>
 				<CardHeader>
-					<CardTitle>Status</CardTitle>
-					<CardDescription>
-						This page refreshes automatically every 5 seconds.
-					</CardDescription>
+					<div className="flex flex-wrap items-center justify-between gap-2">
+						<div>
+							<CardTitle>Status</CardTitle>
+							<CardDescription>
+								This page refreshes automatically every 5 seconds.
+							</CardDescription>
+						</div>
+						{statusMeta && (
+							<span
+								className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusMeta.className}`}
+							>
+								{statusMeta.label}
+							</span>
+						)}
+					</div>
 				</CardHeader>
 				<CardContent>
 					{orderQuery.isLoading && (
-						<p className="text-muted-foreground text-sm">Loading…</p>
+						<p className="text-muted-foreground text-sm">Loading order…</p>
 					)}
 					{orderQuery.isError && (
 						<p className="text-destructive text-sm">
@@ -74,30 +123,35 @@ function OrderStatusPage() {
 								: "Failed to load order"}
 						</p>
 					)}
-					{orderQuery.data && (
+					{order && (
 						<div className="flex flex-col gap-4">
-							<div className="rounded-md border p-3">
-								<p className="text-sm font-medium">
-									Order #{orderQuery.data.data.order.id}
-								</p>
-								<p className="text-muted-foreground text-sm">
-									Status: {orderQuery.data.data.order.status}
-								</p>
-								<p className="text-muted-foreground text-sm">
-									Total: {formatCents(orderQuery.data.data.order.total)}
-								</p>
+							<div className="grid gap-3 sm:grid-cols-3">
+								<div className="rounded-md border p-3">
+									<p className="text-muted-foreground text-xs">Order</p>
+									<p className="text-sm font-medium">#{order.id}</p>
+								</div>
+								<div className="rounded-md border p-3">
+									<p className="text-muted-foreground text-xs">Total</p>
+									<p className="text-sm font-medium">
+										{formatCents(order.total)}
+									</p>
+								</div>
+								<div className="rounded-md border p-3">
+									<p className="text-muted-foreground text-xs">Updated</p>
+									<p className="text-sm font-medium">{updatedAtLabel ?? "—"}</p>
+								</div>
 							</div>
 
 							<div>
 								<p className="text-sm font-medium">Items</p>
-								{orderQuery.data.data.items.length === 0 ? (
+								{items.length === 0 ? (
 									<p className="text-muted-foreground text-sm">No items.</p>
 								) : (
 									<ul className="mt-2 space-y-2">
-										{orderQuery.data.data.items.map((item) => (
+										{items.map((item) => (
 											<li
 												key={item.id}
-												className="flex items-center justify-between gap-3 rounded-md border p-3"
+												className="flex items-start justify-between gap-3 rounded-md border p-3"
 											>
 												<div>
 													<p className="text-sm font-medium">
@@ -107,6 +161,11 @@ function OrderStatusPage() {
 													<p className="text-muted-foreground text-xs">
 														{formatCents(item.price_at_time)} × {item.quantity}
 													</p>
+													{item.notes && (
+														<p className="text-muted-foreground mt-1 text-xs">
+															Note: {item.notes}
+														</p>
+													)}
 												</div>
 												<p className="text-sm font-medium">
 													{formatCents(item.price_at_time * item.quantity)}
@@ -120,13 +179,18 @@ function OrderStatusPage() {
 					)}
 				</CardContent>
 				<CardFooter>
-					<Button
-						variant="outline"
-						onClick={() => orderQuery.refetch()}
-						disabled={orderQuery.isFetching}
-					>
-						Refresh
-					</Button>
+					<div className="flex w-full items-center justify-between gap-3">
+						<p className="text-muted-foreground text-xs">
+							{orderQuery.isFetching ? "Refreshing…" : ""}
+						</p>
+						<Button
+							variant="outline"
+							onClick={() => orderQuery.refetch()}
+							disabled={orderQuery.isFetching}
+						>
+							Refresh
+						</Button>
+					</div>
 				</CardFooter>
 			</Card>
 		</AppShell>
