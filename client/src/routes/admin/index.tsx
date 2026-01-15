@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/auth-context";
 import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
 import { useOrders } from "@/hooks/useOrders";
@@ -332,7 +333,11 @@ function AdminManagementPage() {
 									)}
 								</div>
 								{categoriesQuery.isLoading && (
-									<p className="text-muted-foreground text-sm">Loading…</p>
+									<div className="flex flex-wrap gap-2">
+										<Skeleton className="h-8 w-20" />
+										<Skeleton className="h-8 w-24" />
+										<Skeleton className="h-8 w-16" />
+									</div>
 								)}
 								{categoriesQuery.isError && (
 									<p className="text-destructive text-sm">
@@ -459,7 +464,11 @@ function AdminManagementPage() {
 									</div>
 								)}
 								{itemsQuery.isLoading && selectedCategoryId && (
-									<p className="text-muted-foreground text-sm">Loading…</p>
+									<div className="space-y-2">
+										<Skeleton className="h-12 w-full" />
+										<Skeleton className="h-12 w-full" />
+										<Skeleton className="h-12 w-full" />
+									</div>
 								)}
 								{itemsQuery.isError && selectedCategoryId && (
 									<p className="text-destructive text-sm">
@@ -576,7 +585,10 @@ function AdminManagementPage() {
 							<div className="flex flex-col gap-2">
 								<p className="text-sm font-medium">Existing tables</p>
 								{tablesQuery.isLoading && (
-									<p className="text-muted-foreground text-sm">Loading…</p>
+									<div className="space-y-2">
+										<Skeleton className="h-10 w-full" />
+										<Skeleton className="h-10 w-full" />
+									</div>
 								)}
 								{tablesQuery.isError && (
 									<p className="text-destructive text-sm">
@@ -661,9 +673,7 @@ function AdminManagementPage() {
 										</Button>
 									</div>
 									{tableQrQuery.isLoading && (
-										<p className="text-muted-foreground mt-2 text-sm">
-											Loading…
-										</p>
+										<Skeleton className="mt-2 h-56 w-56" />
 									)}
 									{tableQrQuery.isError && (
 										<p className="text-destructive mt-2 text-sm">
@@ -755,7 +765,11 @@ function AdminManagementPage() {
 							</div>
 
 							{ordersQuery.isLoading && (
-								<p className="text-muted-foreground text-sm">Loading…</p>
+								<div className="space-y-2">
+									<Skeleton className="h-16 w-full" />
+									<Skeleton className="h-16 w-full" />
+									<Skeleton className="h-16 w-full" />
+								</div>
 							)}
 							{ordersQuery.isError && (
 								<p className="text-destructive text-sm">

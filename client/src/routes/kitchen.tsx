@@ -13,6 +13,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAllMenuItems } from "@/hooks/useMenu";
 import { useOrder, useOrders } from "@/hooks/useOrders";
 import { getAuthToken } from "@/lib/auth-token";
@@ -118,7 +119,11 @@ function KitchenPage() {
 						</div>
 
 						{ordersQuery.isLoading && (
-							<p className="text-muted-foreground text-sm">Loading…</p>
+							<div className="space-y-3">
+								<Skeleton className="h-20 w-full" />
+								<Skeleton className="h-20 w-full" />
+								<Skeleton className="h-20 w-full" />
+							</div>
 						)}
 						{ordersQuery.isError && (
 							<p className="text-destructive text-sm">Failed to load orders.</p>

@@ -14,6 +14,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useMenuCategories, useMenuItems } from "@/hooks/useMenu";
 import { cn } from "@/lib/utils";
 import { ordersService, tablesService } from "@/services";
@@ -349,7 +350,11 @@ function TableMenuPage() {
 						</CardHeader>
 						<CardContent>
 							{categoriesQuery.isLoading && (
-								<p className="text-muted-foreground text-sm">Loading…</p>
+								<div className="flex gap-2">
+									<Skeleton className="h-8 w-20" />
+									<Skeleton className="h-8 w-24" />
+									<Skeleton className="h-8 w-16" />
+								</div>
 							)}
 							{categoriesQuery.isError && (
 								<p className="text-destructive text-sm">
@@ -410,7 +415,12 @@ function TableMenuPage() {
 							)}
 
 							{itemsQuery.isLoading && selectedCategoryId && (
-								<p className="text-muted-foreground text-sm">Loading…</p>
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<Skeleton className="h-32 w-full" />
+									<Skeleton className="h-32 w-full" />
+									<Skeleton className="h-32 w-full" />
+									<Skeleton className="h-32 w-full" />
+								</div>
 							)}
 							{itemsQuery.isError && selectedCategoryId && (
 								<p className="text-destructive text-sm">
